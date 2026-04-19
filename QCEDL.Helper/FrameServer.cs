@@ -77,6 +77,7 @@ internal sealed class FrameServer(Stream stream) : IDisposable
             {
                 case HelperOpcode.Open:
                     var devicePath = HelperChannel.DecodeOpenRequest(payload);
+                    ValidateDevicePath(devicePath);
                     _serial?.Dispose();
                     _serial = new QualcommSerial(devicePath);
                     WriteFrame(HelperOpcode.OpenOk, HelperChannel.EncodeOpenOk((byte)_serial.ActiveCommunicationMode));
@@ -148,6 +149,64 @@ internal sealed class FrameServer(Stream stream) : IDisposable
     private QualcommSerial RequireSerial()
     {
         return _serial ?? throw new InvalidOperationException("Helper received an IO request before OPEN.");
+    }
+
+    /// <summary>
+    /// Reject arbitrary paths before the privileged helper opens them. The helper runs as root,
+    /// so a compromised GUI could otherwise coerce it into opening any file on disk. Only accept
+    /// macOS tty devices matching the expected USB-serial naming, with no traversal segments,
+    /// and require the target to actually be a character-special device.
+    /// </summary>
+    private static void ValidateDevicePath(string devicePath)
+    {
+        if (string.IsNullOrWhiteSpace(devicePath))
+        {
+            throw new ArgumentException("Device path is empty.", nameof(devicePath));
+        }
+
+        if (devicePath.Contains('\0', StringComparison.Ordinal))
+        {
+            throw new ArgumentException("Device path contains a NUL byte.", nameof(devicePath));
+        }
+
+        // No traversal, no relative segments — the helper only opens absolute, canonical device nodes.
+        if (devicePath.Contains("..", StringComparison.Ordinal))
+        {
+            throw new ArgumentException($"Device path '{devicePath}' contains '..'.", nameof(devicePath));
+        }
+
+        var full = Path.GetFullPath(devicePath);
+        if (!string.Equals(full, devicePath, StringComparison.Ordinal))
+        {
+            throw new ArgumentException($"Device path '{devicePath}' is not canonical (resolved to '{full}').", nameof(devicePath));
+        }
+
+        // Allow-list: macOS usb-serial nodes created by the cdc-acm / ftdi / pl2303 drivers.
+        var name = Path.GetFileName(full);
+        var inDev = string.Equals(Path.GetDirectoryName(full), "/dev", StringComparison.Ordinal);
+        var matchesPrefix =
+            name.StartsWith("cu.usb", StringComparison.Ordinal) ||
+            name.StartsWith("tty.usb", StringComparison.Ordinal);
+        if (!inDev || !matchesPrefix)
+        {
+            throw new ArgumentException($"Device path '{devicePath}' is not an allowed USB-serial node.", nameof(devicePath));
+        }
+
+        // Must exist and not be a directory/symlink. Creating a regular file under /dev/ already
+        // requires root, so the allow-list above is the load-bearing check; this is defense in depth.
+        var info = new FileInfo(full);
+        if (!info.Exists)
+        {
+            throw new FileNotFoundException($"Device path '{devicePath}' does not exist.", full);
+        }
+        if ((info.Attributes & FileAttributes.ReparsePoint) != 0)
+        {
+            throw new ArgumentException($"Device path '{devicePath}' is a symlink.", nameof(devicePath));
+        }
+        if ((info.Attributes & FileAttributes.Directory) != 0)
+        {
+            throw new ArgumentException($"Device path '{devicePath}' is a directory.", nameof(devicePath));
+        }
     }
 
     private void WriteFrame(HelperOpcode op, ReadOnlySpan<byte> payload)

@@ -38,13 +38,13 @@ public sealed class EdlService : IDisposable
     }
 
     /// <summary>Run an operation under the single-op lock so clicks can't overlap.</summary>
-    public async Task<T> RunExclusiveAsync<T>(Func<EdlManager, Task<T>> action, CancellationToken ct = default)
+    public async Task<T> RunExclusiveAsync<T>(Func<EdlManager, CancellationToken, Task<T>> action, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(action);
         await _opLock.WaitAsync(ct);
         try
         {
-            return await action(EnsureManager());
+            return await action(EnsureManager(), ct);
         }
         finally
         {
@@ -53,13 +53,26 @@ public sealed class EdlService : IDisposable
         }
     }
 
-    public Task RunExclusiveAsync(Func<EdlManager, Task> action, CancellationToken ct = default)
+    public Task<T> RunExclusiveAsync<T>(Func<EdlManager, Task<T>> action, CancellationToken ct = default)
     {
-        return RunExclusiveAsync(async m =>
+        ArgumentNullException.ThrowIfNull(action);
+        return RunExclusiveAsync((m, _) => action(m), ct);
+    }
+
+    public Task RunExclusiveAsync(Func<EdlManager, CancellationToken, Task> action, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        return RunExclusiveAsync(async (m, c) =>
         {
-            await action(m);
+            await action(m, c);
             return 0;
         }, ct);
+    }
+
+    public Task RunExclusiveAsync(Func<EdlManager, Task> action, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        return RunExclusiveAsync((m, _) => action(m), ct);
     }
 
     public async Task<DeviceMode> ProbeAsync(CancellationToken ct = default)
