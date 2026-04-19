@@ -42,8 +42,7 @@ public sealed partial class RawProgramViewModel : ViewModelBase
     public RawProgramViewModel(EdlService service)
     {
         _service = service;
-        _canRun = this.WhenAnyValue(x => x.CanInteract)
-            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
 
         LogCommandErrors();
 

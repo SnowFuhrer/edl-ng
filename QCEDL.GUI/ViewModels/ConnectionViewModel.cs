@@ -17,8 +17,7 @@ public sealed partial class ConnectionViewModel : ViewModelBase
 {
     private readonly EdlService _service;
     private readonly IObservable<bool> _canRun;
-    private readonly IObservable<bool> _canConnect;
-    private readonly IObservable<bool> _canDisconnect;
+    private readonly IObservable<bool> _canProbe;
 
     // Form fields — direct two-way bound.
     [Reactive] private string? _loaderPath;
@@ -57,7 +56,6 @@ public sealed partial class ConnectionViewModel : ViewModelBase
     {
         _service = service;
         _canRun = this.WhenAnyValue(x => x.IsBusy).Select(b => !b);
-        _canDisconnect = _canRun.CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
 
         MemoryTypes = Enum.GetValues<StorageType>();
         Backends = Enum.GetValues<TransportBackend>();
@@ -135,10 +133,10 @@ public sealed partial class ConnectionViewModel : ViewModelBase
             .ToProperty(this, nameof(DevicesStatusText));
 
         // ── Command gates ──────────────────────────────────────────────────
-        // Connect/Probe normally require Step 1 (Scan) to have populated a candidate list,
+        // Probe normally requires Step 1 (Scan) to have populated a candidate list,
         // but a manually typed serial-device path (honoured by EdlManager directly) or
-        // direct-mode fields also unblock the commands — discovery is not the only entry.
-        _canConnect = this.WhenAnyValue(
+        // direct-mode fields also unblock the command — discovery is not the only entry.
+        _canProbe = this.WhenAnyValue(
             x => x.IsBusy, x => x.IsDirectMode, x => x.HasCandidates, x => x.SerialDevicePath,
             (busy, direct, hasCandidates, serialPath) =>
                 !busy && (direct || hasCandidates || !string.IsNullOrWhiteSpace(serialPath)));
@@ -149,12 +147,30 @@ public sealed partial class ConnectionViewModel : ViewModelBase
                 ? "Conn_DeviceSelectedFormat"
                 : Candidates.Count == 0 ? "Conn_DevicesEmpty" : "Conn_DevicesFoundFormat");
 
-        // Localized wording for the two hot paths: keep the explicit hook so the Conn_* keys drive the message.
-        ConnectCommand.ThrownExceptions.Subscribe(ex =>
-        {
-            Logging.Log(Localizer.Instance.Format("Conn_ConnectFailedFormat", ex.Message), LogLevel.Error);
-            LogElevationHintFor(ex);
-        });
+        // Keep EdlService.Options in sync with the form so downstream views (Partitions,
+        // Sectors, RawProgram, Advanced) pick up the user's target without first needing a
+        // Probe. Any change resets the live session so the next op re-opens with fresh options.
+        // Each WhenAnyValue emits its seed immediately; Skip(1) drops those so we only fire
+        // on real user edits.
+        Observable.Merge(
+                this.WhenAnyValue(x => x.LoaderPath).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.VidHex).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.PidHex).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.MemoryType).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.Slot).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.HostDevTarget).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.ImgSize).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.RadxaWos).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.DirectEnabled).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.SerialDevicePath).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.Backend).Skip(1).Select(_ => Unit.Default),
+                this.WhenAnyValue(x => x.SelectedCandidate).Skip(1).Select(_ => Unit.Default))
+            .Subscribe(_ => ProjectOptions(resetSession: true));
+
+        // Seed the service with the initial form state so ops work before any edits.
+        ProjectOptions(resetSession: true);
+
+        // Localized wording for the probe hot path: keep the explicit hook so the Conn_* key drives the message.
         ProbeCommand.ThrownExceptions.Subscribe(ex =>
         {
             Logging.Log(Localizer.Instance.Format("Conn_ProbeFailedFormat", ex.Message), LogLevel.Error);
@@ -251,7 +267,7 @@ public sealed partial class ConnectionViewModel : ViewModelBase
         GuiSettings.Save();
     }
 
-    [ReactiveCommand(CanExecute = nameof(_canConnect))]
+    [ReactiveCommand(CanExecute = nameof(_canProbe))]
     private async Task ProbeAsync()
     {
         IsBusy = true;
@@ -263,49 +279,14 @@ public sealed partial class ConnectionViewModel : ViewModelBase
                 return;
             }
             Logging.Log(Localizer.Instance["Conn_LogProbing"], LogLevel.Info);
+            if (ElevationPolicy.RequiresHelper(Backend))
+            {
+                Logging.Log(Localizer.Instance["Conn_LogElevationMacOs"], LogLevel.Info);
+            }
             var mode = await _service.ProbeAsync();
             ModeLiteral = mode.ToString();
             StatusKey = "Conn_StatusDetectedFormat";
             StatusArgs = [mode];
-        }
-        finally { IsBusy = false; }
-    }
-
-    [ReactiveCommand(CanExecute = nameof(_canConnect))]
-    private async Task ConnectAsync()
-    {
-        IsBusy = true;
-        try
-        {
-            ProjectOptions(resetSession: true);
-            if (IsDirectMode)
-            {
-                Logging.Log(Localizer.Instance["Conn_LogDirectSession"], LogLevel.Info);
-                // Force construction of the EdlManager so EdlService.IsConnected flips true
-                // and the rest of the GUI (Partitions/Sectors/RawProgram/Advanced) unlocks.
-                // Direct-mode managers bypass USB/Sahara/Firehose entirely — no-op action is enough.
-                await _service.RunExclusiveAsync(static _ => Task.CompletedTask);
-                StatusKey = "Conn_StatusDirectReady";
-                StatusArgs = [];
-                ModeKey = "Conn_ModeDirect";
-                ModeLiteral = null;
-                return;
-            }
-
-            if (!await EnsureDeviceSelectionAsync())
-            {
-                return;
-            }
-
-            Logging.Log(Localizer.Instance["Conn_LogConnecting"], LogLevel.Info);
-            if (ElevationPolicy.RequiresHelper())
-            {
-                Logging.Log(Localizer.Instance["Conn_LogElevationMacOs"], LogLevel.Info);
-            }
-            await _service.EnsureFirehoseAsync();
-            ModeLiteral = _service.CurrentMode.ToString();
-            StatusKey = "Conn_StatusFirehoseConnected";
-            StatusArgs = [];
         }
         finally { IsBusy = false; }
     }
@@ -419,17 +400,6 @@ public sealed partial class ConnectionViewModel : ViewModelBase
         {
             Candidates.Add(c);
         }
-    }
-
-    [ReactiveCommand(CanExecute = nameof(_canDisconnect))]
-    private void Disconnect()
-    {
-        _service.ResetSession();
-        StatusKey = "Conn_StatusDisconnected";
-        StatusArgs = [];
-        ModeKey = "Conn_ModeUnknown";
-        ModeLiteral = null;
-        Logging.Log(Localizer.Instance["Conn_LogSessionClosed"], LogLevel.Info);
     }
 
     [ReactiveCommand]

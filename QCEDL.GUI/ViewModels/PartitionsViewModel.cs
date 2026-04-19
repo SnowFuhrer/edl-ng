@@ -32,8 +32,7 @@ public sealed partial class PartitionsViewModel : ViewModelBase
     public PartitionsViewModel(EdlService service)
     {
         _service = service;
-        _canRun = this.WhenAnyValue(x => x.CanInteract)
-            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
 
         ScanCommand.ThrownExceptions.Subscribe(ex =>
             Logging.Log(Localizer.Instance.Format("Parts_LogScanFailedFormat", ex.Message), LogLevel.Error));

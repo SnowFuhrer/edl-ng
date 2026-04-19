@@ -81,9 +81,7 @@
                     </Grid>
 
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                        <Button Classes="primary" Content="{l:Localize Conn_ConnectButton}" Command="{Binding ConnectCommand}" />
-                        <Button Content="{l:Localize Conn_ProbeButton}" Command="{Binding ProbeCommand}" />
-                        <Button Classes="ghost" Content="{l:Localize Conn_DisconnectButton}" Command="{Binding DisconnectCommand}" />
+                        <Button Classes="primary" Content="{l:Localize Conn_ProbeButton}" Command="{Binding ProbeCommand}" />
                         <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Width="120" Height="4" VerticalAlignment="Center" />
                     </StackPanel>
                 </StackPanel>

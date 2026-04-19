@@ -25,8 +25,7 @@ public sealed partial class SectorsViewModel : ViewModelBase
     public SectorsViewModel(EdlService service)
     {
         _service = service;
-        _canRun = this.WhenAnyValue(x => x.CanInteract)
-            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
 
         LogCommandErrors();
 

@@ -32,10 +32,8 @@ public sealed partial class AdvancedViewModel : ViewModelBase
     {
         _service = service;
         ResetModes = Enum.GetValues<PowerValue>();
-        _canRun = this.WhenAnyValue(x => x.CanInteract)
-            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
-        _canUploadLoader = this.WhenAnyValue(x => x.CanInteract)
-            .CombineLatest(_service.WhenSaharaModeChanged, (ok, sahara) => ok && sahara);
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
+        _canUploadLoader = this.WhenAnyValue(x => x.CanInteract);
 
         LogCommandErrors();
     }
