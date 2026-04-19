@@ -103,6 +103,7 @@
   <data name="Conn_Slot" xml:space="preserve"><value>Slot</value></data>
   <data name="Conn_DirectCardTitle" xml:space="preserve"><value>Direct modes</value></data>
   <data name="Conn_DirectCardCaption" xml:space="preserve"><value>Bypass USB/Firehose entirely when flashing a host block device or file-backed image.</value></data>
+  <data name="Conn_DirectEnabled" xml:space="preserve"><value>Enable direct mode</value></data>
   <data name="Conn_HostDevice" xml:space="preserve"><value>Host device</value></data>
   <data name="Conn_HostDevicePlaceholder" xml:space="preserve"><value>/dev/mtd0 or /path/to/file.img</value></data>
   <data name="Conn_ImageSize" xml:space="preserve"><value>Image size</value></data>
@@ -110,7 +111,10 @@
   <data name="Conn_RadxaWos" xml:space="preserve"><value>Radxa WoS</value></data>
   <data name="Conn_RadxaCheckbox" xml:space="preserve"><value>Use Radxa Windows-on-Snapdragon SPI NOR backend (Windows only)</value></data>
   <data name="Conn_StatusTitle" xml:space="preserve"><value>Status</value></data>
-  <data name="Conn_ModeLabel" xml:space="preserve"><value>Mode:</value></data>
+  <data name="Conn_ModeLabel" xml:space="preserve"><value>Mode</value></data>
+  <data name="Conn_StatusFieldLabel" xml:space="preserve"><value>Status</value></data>
+  <data name="Conn_StepDiscover" xml:space="preserve"><value>STEP 01 · DISCOVER</value></data>
+  <data name="Conn_StepSession" xml:space="preserve"><value>STEP 02 · SESSION</value></data>
   <data name="Conn_ConnectButton" xml:space="preserve"><value>Connect</value></data>
   <data name="Conn_ProbeButton" xml:space="preserve"><value>Probe mode</value></data>
   <data name="Conn_DisconnectButton" xml:space="preserve"><value>Disconnect</value></data>
@@ -127,6 +131,22 @@
   <data name="Conn_StatusFirehoseConnected" xml:space="preserve"><value>Connected in Firehose mode.</value></data>
   <data name="Conn_StatusDisconnected" xml:space="preserve"><value>Disconnected.</value></data>
   <data name="Conn_LogSessionClosed" xml:space="preserve"><value>Session closed.</value></data>
+
+  <data name="Conn_DevicesCardTitle" xml:space="preserve"><value>Device &amp; Session</value></data>
+  <data name="Conn_DevicesCardCaption" xml:space="preserve"><value>Scan for matching EDL devices, review the list, then connect. When more than one is attached and none is selected, you will be prompted to pick during Connect.</value></data>
+  <data name="Conn_ScanDevicesButton" xml:space="preserve"><value>Scan devices</value></data>
+  <data name="Conn_ClearDeviceSelection" xml:space="preserve"><value>Clear selection</value></data>
+  <data name="Conn_DevicesEmpty" xml:space="preserve"><value>No candidates yet. Click Scan to enumerate.</value></data>
+  <data name="Conn_DevicesNoneFound" xml:space="preserve"><value>No EDL devices found on the selected backend.</value></data>
+  <data name="Conn_DevicesFoundFormat" xml:space="preserve"><value>Found {0} candidate device(s).</value></data>
+  <data name="Conn_DeviceSelectedFormat" xml:space="preserve"><value>Selected device: {0}</value></data>
+  <data name="Conn_LogMultipleFoundPrompt" xml:space="preserve"><value>Multiple devices found — prompting the user to pick one.</value></data>
+  <data name="Conn_LogSelectionCancelled" xml:space="preserve"><value>Device selection cancelled.</value></data>
+
+  <data name="DeviceChooser_Title" xml:space="preserve"><value>Pick a device</value></data>
+  <data name="DeviceChooser_Prompt" xml:space="preserve"><value>More than one EDL device matches your transport backend. Pick the one to use.</value></data>
+  <data name="DeviceChooser_Confirm" xml:space="preserve"><value>Use this device</value></data>
+  <data name="DeviceChooser_Cancel" xml:space="preserve"><value>Cancel</value></data>
 
   <data name="Parts_Label" xml:space="preserve"><value>PARTITIONS</value></data>
   <data name="Parts_Heading" xml:space="preserve"><value>GPT Inspector</value></data>

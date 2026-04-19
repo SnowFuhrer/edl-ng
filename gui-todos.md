@@ -117,7 +117,9 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 - [Done] Keyboard shortcuts, focus visuals audit, contrast audit.
 - [Done] Settings persistence (log level, last loader, last VID/PID, memory type, backend).
 - [Done] About pane + version.
-- [Deferred] Multi-device selection UX — CLI layer currently picks the first match; revisit once `EdlManager` surfaces an enumerator.
+- [Done] Multi-device selection UX — `EdlManager.EnumerateDevices(EdlOptions)`
+  surfaces an enumerator; GUI Connection view lists candidates and auto-prompts
+  when >1 is found. CLI still picks the first match.
 - [Deferred] Streaming probe / emergency-flash 9006 handling — blocked on protocol-layer work.
 
 ---
@@ -150,6 +152,7 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 | Settings persistence | 4 | Done | `GuiSettings.Current` shared model persists culture, log level, last loader path, VID/PID, memory type, and transport backend. |
 | Keyboard shortcuts | 4 | Done | `Window.KeyBindings` + NativeMenu gestures wire Ctrl/Cmd+1..7 for nav, Ctrl+, for Settings, F1 for docs. |
 | Focus visuals | 4 | Done | Buttons and ListBoxItems highlight with the Focus Blue ring on keyboard focus; TextBox/ComboBox already had it. |
+| Multi-device selection | 4 | Done | `EdlManager.EnumerateDevices` + `DeviceCandidate`; Connection view Scan + auto-prompting `DeviceChooserDialog` when >1 candidate matches. `EdlOptions.UsbDeviceId` pins a specific libusb device by `bus_/addr_`. |
 
 ---
 
@@ -177,3 +180,11 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
   shortcuts via `Window.KeyBindings`, and strengthened Focus-Blue focus rings on buttons /
   nav items. Multi-device selection and 9006 emergency-flash handling remain deferred on
   the protocol layer.
+- **2026-04-19** — Multi-device selection: added `DeviceCandidate` +
+  `EdlManager.EnumerateDevices(EdlOptions)` (static, non-destructive); extended
+  `EdlOptions` with `UsbDeviceId` (`usb:vid_XXXX,pid_YYYY,bus_N,addr_M`) and
+  taught `QualcommSerial` to open a specific libusb device when bus/addr is
+  pinned. GUI Connection view now has a Devices card (Scan + inline list +
+  Clear selection) and Connect/Probe auto-open a new `DeviceChooserDialog`
+  when >1 candidate matches. Also fixed `EdlService.CloneOptions` silently
+  dropping `Backend`/`SerialDevicePath`.

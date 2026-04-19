@@ -103,6 +103,7 @@
   <data name="Conn_Slot" xml:space="preserve"><value>插槽</value></data>
   <data name="Conn_DirectCardTitle" xml:space="preserve"><value>直接模式</value></data>
   <data name="Conn_DirectCardCaption" xml:space="preserve"><value>燒錄主機區塊裝置或檔案映像時,完全繞過 USB / Firehose。</value></data>
+  <data name="Conn_DirectEnabled" xml:space="preserve"><value>啟用直連模式</value></data>
   <data name="Conn_HostDevice" xml:space="preserve"><value>主機裝置</value></data>
   <data name="Conn_HostDevicePlaceholder" xml:space="preserve"><value>/dev/mtd0 或 /path/to/file.img</value></data>
   <data name="Conn_ImageSize" xml:space="preserve"><value>映像大小</value></data>
@@ -110,7 +111,10 @@
   <data name="Conn_RadxaWos" xml:space="preserve"><value>Radxa WoS</value></data>
   <data name="Conn_RadxaCheckbox" xml:space="preserve"><value>使用 Radxa Windows-on-Snapdragon SPI NOR 後端(僅限 Windows)</value></data>
   <data name="Conn_StatusTitle" xml:space="preserve"><value>狀態</value></data>
-  <data name="Conn_ModeLabel" xml:space="preserve"><value>模式:</value></data>
+  <data name="Conn_ModeLabel" xml:space="preserve"><value>模式</value></data>
+  <data name="Conn_StatusFieldLabel" xml:space="preserve"><value>狀態</value></data>
+  <data name="Conn_StepDiscover" xml:space="preserve"><value>步驟 01 · 搜尋</value></data>
+  <data name="Conn_StepSession" xml:space="preserve"><value>步驟 02 · 工作階段</value></data>
   <data name="Conn_ConnectButton" xml:space="preserve"><value>連線</value></data>
   <data name="Conn_ProbeButton" xml:space="preserve"><value>探測模式</value></data>
   <data name="Conn_DisconnectButton" xml:space="preserve"><value>中斷連線</value></data>
@@ -127,6 +131,22 @@
   <data name="Conn_StatusFirehoseConnected" xml:space="preserve"><value>已於 Firehose 模式連線。</value></data>
   <data name="Conn_StatusDisconnected" xml:space="preserve"><value>已中斷連線。</value></data>
   <data name="Conn_LogSessionClosed" xml:space="preserve"><value>工作階段已關閉。</value></data>
+
+  <data name="Conn_DevicesCardTitle" xml:space="preserve"><value>裝置與工作階段</value></data>
+  <data name="Conn_DevicesCardCaption" xml:space="preserve"><value>先掃描可用的 EDL 裝置,在清單中確認後連線。連接多台而未指定時,Connect 時會提示手動挑選。</value></data>
+  <data name="Conn_ScanDevicesButton" xml:space="preserve"><value>掃描裝置</value></data>
+  <data name="Conn_ClearDeviceSelection" xml:space="preserve"><value>清除選擇</value></data>
+  <data name="Conn_DevicesEmpty" xml:space="preserve"><value>尚未掃描。按「掃描裝置」開始列舉。</value></data>
+  <data name="Conn_DevicesNoneFound" xml:space="preserve"><value>目前傳輸後端未找到 EDL 裝置。</value></data>
+  <data name="Conn_DevicesFoundFormat" xml:space="preserve"><value>找到 {0} 台候選裝置。</value></data>
+  <data name="Conn_DeviceSelectedFormat" xml:space="preserve"><value>已選擇裝置:{0}</value></data>
+  <data name="Conn_LogMultipleFoundPrompt" xml:space="preserve"><value>偵測到多台裝置——已請使用者手動選擇。</value></data>
+  <data name="Conn_LogSelectionCancelled" xml:space="preserve"><value>已取消裝置選擇。</value></data>
+
+  <data name="DeviceChooser_Title" xml:space="preserve"><value>選擇裝置</value></data>
+  <data name="DeviceChooser_Prompt" xml:space="preserve"><value>目前傳輸後端下找到多台 EDL 裝置,請選擇要使用的一台。</value></data>
+  <data name="DeviceChooser_Confirm" xml:space="preserve"><value>使用此裝置</value></data>
+  <data name="DeviceChooser_Cancel" xml:space="preserve"><value>取消</value></data>
 
   <data name="Parts_Label" xml:space="preserve"><value>分割區</value></data>
   <data name="Parts_Heading" xml:space="preserve"><value>GPT 檢視器</value></data>

@@ -86,7 +86,7 @@ internal sealed class DumpRawprogramCommand
                 Console.Write($"\rDumping {p.PartitionName}: {pct,5:F1}% ({p.BytesDone / (1024.0 * 1024.0),6:F2} / {p.BytesTotal / (1024.0 * 1024.0),6:F2} MiB) [{speedStr,-10}]     ");
             }
 
-            var rc = await DumpRawprogramRunner.RunAsync(manager, dumpSaveDir, lun, genXmlOnly, skipSet, Progress).ConfigureAwait(false);
+            var rc = await DumpRawprogramRunner.RunAsync(manager, dumpSaveDir, lun, genXmlOnly, skipSet, Progress);
             if (lastName != null)
             {
                 Console.WriteLine();

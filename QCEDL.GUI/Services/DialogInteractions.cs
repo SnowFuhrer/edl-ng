@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using QCEDL.GUI.Views;
+using Qualcomm.EmergencyDownload.Core;
 using ReactiveUI;
 
 namespace QCEDL.GUI.Services;
@@ -26,6 +27,8 @@ public sealed record ConfirmRequest(
     string Message,
     bool Danger,
     string? RequiredConfirmation = null);
+
+public sealed record DeviceChooserRequest(IReadOnlyList<DeviceCandidate> Candidates);
 
 public static class FilePickerTypes
 {
@@ -125,5 +128,19 @@ public static class DialogBridges
             var ok = await ConfirmDialog.ShowAsync(
                 owner, req.Title, req.Message, req.Danger, req.RequiredConfirmation);
             ctx.SetOutput(ok);
+        });
+
+    public static IDisposable RegisterPickDevice(
+        Control view,
+        Interaction<DeviceChooserRequest, DeviceCandidate?> interaction) =>
+        interaction.RegisterHandler(async ctx =>
+        {
+            if (TopLevel.GetTopLevel(view) is not Window owner)
+            {
+                ctx.SetOutput(null);
+                return;
+            }
+            var chosen = await DeviceChooserDialog.ShowAsync(owner, ctx.Input.Candidates);
+            ctx.SetOutput(chosen);
         });
 }

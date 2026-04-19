@@ -417,6 +417,26 @@
         </Setter>
     </ControlTheme>
 
+    <!-- ═══ TransitioningContentControl ════════════════════════════════════
+         Same as ContentControl, but the presenter must be named PART_ContentPresenter
+         so the control code can drive PageTransition.Start() against it when Content
+         changes. Without this ControlTheme (we don't load FluentTheme) the control
+         has no template and transitions silently never run. -->
+    <ControlTheme x:Key="{x:Type TransitioningContentControl}" TargetType="TransitioningContentControl">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="TransitioningContentControl">
+                <Panel Background="{TemplateBinding Background}">
+                    <ContentPresenter Name="PART_ContentPresenter"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Padding="{TemplateBinding Padding}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
     <!-- ═══ ItemsControl ════════════════════════════════════════════════════ -->
     <ControlTheme x:Key="{x:Type ItemsControl}" TargetType="ItemsControl">
         <Setter Property="Template">

@@ -140,8 +140,8 @@ public static class RawProgramRunner
         }
         else
         {
-            await manager.EnsureFirehoseModeAsync().ConfigureAwait(false);
-            await manager.ConfigureFirehoseAsync().ConfigureAwait(false);
+            await manager.EnsureFirehoseModeAsync();
+            await manager.ConfigureFirehoseAsync();
         }
 
         foreach (var lunKey in files.RawProgramByLun.Keys.OrderBy(k => k))
@@ -168,7 +168,7 @@ public static class RawProgramRunner
             }
 
             var programs = rawDoc.Root.Elements("program").ToList();
-            var rc = await ProcessProgramsAsync(manager, programs, rawFile, progress, ct).ConfigureAwait(false);
+            var rc = await ProcessProgramsAsync(manager, programs, rawFile, progress, ct);
             if (rc != 0)
             {
                 return rc;
@@ -177,7 +177,7 @@ public static class RawProgramRunner
             if (files.PatchByLun.TryGetValue(lunKey, out var patchFile))
             {
                 Logging.Log($"--- Patching LUN {lunKey} using {patchFile.Name} ---");
-                var pc = await ProcessPatchFileAsync(manager, patchFile, lunKey, ct).ConfigureAwait(false);
+                var pc = await ProcessPatchFileAsync(manager, patchFile, lunKey, ct);
                 if (pc != 0)
                 {
                     return pc;
@@ -236,7 +236,7 @@ public static class RawProgramRunner
             }
 
             var effectiveLun = manager.IsDirectMode ? 0u : targetLun;
-            var geometry = await manager.GetStorageGeometryAsync(effectiveLun).ConfigureAwait(false);
+            var geometry = await manager.GetStorageGeometryAsync(effectiveLun);
             var sectorSize = geometry.SectorSize;
             if (sectorSize != xmlSectorSize)
             {
@@ -303,7 +303,7 @@ public static class RawProgramRunner
                     dataLength,
                     padToSector: true,
                     filename,
-                    Report).ConfigureAwait(false);
+                    Report);
                 sw.Stop();
             }
             catch (Exception ex)
@@ -373,13 +373,13 @@ public static class RawProgramRunner
                     }
 
                     await manager.ApplyPatchAsync(startSector, byteOffset, sizeInBytes, value, filename)
-                        .ConfigureAwait(false);
+                        ;
                 }
                 else
                 {
                     var payload = $"<?xml version=\"1.0\" ?><data>{patchEl.ToString(SaveOptions.DisableFormatting)}</data>";
                     var ok = await Task.Run(() => manager.Firehose.SendRawXmlAndGetResponse(payload), ct)
-                        .ConfigureAwait(false);
+                        ;
                     if (!ok)
                     {
                         Logging.Log($"Patch {index} NAK/failed.", LogLevel.Error);

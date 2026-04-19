@@ -24,10 +24,10 @@ public static class ProvisionRunner
             Logging.Log($"--memory is '{manager.Options.MemoryType}', but provisioning implies UFS. Using UFS.", LogLevel.Warning);
         }
 
-        await manager.EnsureFirehoseModeAsync().ConfigureAwait(false);
+        await manager.EnsureFirehoseModeAsync();
 
         Logging.Log("Sending initial Firehose configure command (Memory: UFS, SkipStorageInit: true)...");
-        var configured = await Task.Run(() => manager.Firehose.Configure(StorageType.Ufs, skipStorageInit: true), ct).ConfigureAwait(false);
+        var configured = await Task.Run(() => manager.Firehose.Configure(StorageType.Ufs, skipStorageInit: true), ct);
         if (!configured)
         {
             Logging.Log("Failed to send initial Firehose configure command for provisioning.", LogLevel.Error);
@@ -69,7 +69,7 @@ public static class ProvisionRunner
             index++;
             var payload = $"<?xml version=\"1.0\" ?><data>{ufsEl.ToString(SaveOptions.DisableFormatting)}</data>";
             Logging.Log($"Sending UFS command {index}/{ufsElements.Count}");
-            var ok = await Task.Run(() => manager.Firehose.SendRawXmlAndGetResponse(payload), ct).ConfigureAwait(false);
+            var ok = await Task.Run(() => manager.Firehose.SendRawXmlAndGetResponse(payload), ct);
             if (!ok)
             {
                 Logging.Log($"UFS command {index} NAK/failed. {success}/{ufsElements.Count} succeeded before failure.", LogLevel.Error);

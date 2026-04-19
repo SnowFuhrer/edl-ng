@@ -123,38 +123,59 @@
         </Border>
 
         <!-- Main pane -->
-        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-            <ContentControl Content="{Binding Selected.Content}" Margin="36,28">
-                <ContentControl.DataTemplates>
-                    <DataTemplate DataType="vm:OverviewViewModel">
-                        <v:OverviewView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:ConnectionViewModel">
-                        <v:ConnectionView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:PartitionsViewModel">
-                        <v:PartitionsView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:SectorsViewModel">
-                        <v:SectorsView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:RawProgramViewModel">
-                        <v:RawProgramView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:AdvancedViewModel">
-                        <v:AdvancedView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:LogsViewModel">
-                        <v:LogsView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:SettingsViewModel">
-                        <v:SettingsView />
-                    </DataTemplate>
-                    <DataTemplate DataType="vm:PlaceholderViewModel">
-                        <v:PlaceholderView />
-                    </DataTemplate>
-                </ContentControl.DataTemplates>
-            </ContentControl>
-        </ScrollViewer>
+        <TransitioningContentControl Grid.Column="1"
+                                     Content="{Binding Selected.Content}"
+                                     ClipToBounds="True">
+            <TransitioningContentControl.PageTransition>
+                <CrossFade Duration="0:0:0.25" />
+            </TransitioningContentControl.PageTransition>
+            <TransitioningContentControl.DataTemplates>
+                <DataTemplate DataType="vm:OverviewViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:OverviewView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:ConnectionViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:ConnectionView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:PartitionsViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:PartitionsView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:SectorsViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:SectorsView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:RawProgramViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:RawProgramView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:AdvancedViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:AdvancedView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:LogsViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:LogsView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:SettingsViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:SettingsView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+                <DataTemplate DataType="vm:PlaceholderViewModel">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <v:PlaceholderView Margin="36,28" />
+                    </ScrollViewer>
+                </DataTemplate>
+            </TransitioningContentControl.DataTemplates>
+        </TransitioningContentControl>
     </Grid>
 </Window>

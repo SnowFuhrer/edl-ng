@@ -26,6 +26,7 @@ public partial class ConnectionView : UserControl
         if (DataContext is ConnectionViewModel vm)
         {
             _subs.Add(DialogBridges.RegisterPickFile(this, vm.PickFile));
+            _subs.Add(DialogBridges.RegisterPickDevice(this, vm.PickDevice));
         }
     }
 

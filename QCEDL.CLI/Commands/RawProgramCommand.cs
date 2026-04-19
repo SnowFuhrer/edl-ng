@@ -66,7 +66,7 @@ internal sealed class RawProgramCommand
                 }
             }
 
-            return await RawProgramRunner.RunAsync(manager, grouped, Progress).ConfigureAwait(false);
+            return await RawProgramRunner.RunAsync(manager, grouped, Progress);
         });
     }
 }

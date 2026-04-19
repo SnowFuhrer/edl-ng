@@ -108,7 +108,7 @@ public sealed partial class SectorsViewModel : ViewModelBase
             var start = StartLba;
             var count = SectorCount;
 
-            var geometry = await _service.GetGeometryAsync(lun).ConfigureAwait(false);
+            var geometry = await _service.GetGeometryAsync(lun);
             ResetProgress(ClampToLong(count * geometry.SectorSize));
 
             var dir = Path.GetDirectoryName(path);
@@ -119,7 +119,7 @@ public sealed partial class SectorsViewModel : ViewModelBase
 
             await using var fs = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
             await _service.RunExclusiveAsync(m => m.ReadSectorsToStreamAsync(
-                lun, start, count, fs, Report)).ConfigureAwait(false);
+                lun, start, count, fs, Report));
 
             return count;
         });
@@ -137,7 +137,7 @@ public sealed partial class SectorsViewModel : ViewModelBase
         await RunAsync("Sectors_StatusReadingFormat", async () =>
         {
             var lun = Lun;
-            var geometry = await _service.GetGeometryAsync(lun).ConfigureAwait(false);
+            var geometry = await _service.GetGeometryAsync(lun);
             if (geometry.TotalSectors is null or 0)
             {
                 throw new InvalidOperationException("Device did not report a total block count for this LUN.");
@@ -154,7 +154,7 @@ public sealed partial class SectorsViewModel : ViewModelBase
 
             await using var fs = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
             await _service.RunExclusiveAsync(m => m.ReadSectorsToStreamAsync(
-                lun, 0, count, fs, Report)).ConfigureAwait(false);
+                lun, 0, count, fs, Report));
 
             return count;
         });
@@ -195,8 +195,8 @@ public sealed partial class SectorsViewModel : ViewModelBase
                 await using var stream = info.OpenRead();
                 await m.WriteSectorsFromStreamAsync(
                     lun, start, stream, stream.Length, padToSector: true, info.Name, Report)
-                    .ConfigureAwait(false);
-            }).ConfigureAwait(false);
+                    ;
+            });
 
             return (ulong)info.Length;
         });
@@ -221,11 +221,11 @@ public sealed partial class SectorsViewModel : ViewModelBase
             var start = StartLba;
             var count = SectorCount;
 
-            var geometry = await _service.GetGeometryAsync(lun).ConfigureAwait(false);
+            var geometry = await _service.GetGeometryAsync(lun);
             ResetProgress(ClampToLong(count * geometry.SectorSize));
 
             await _service.RunExclusiveAsync(m => m.EraseSectorsAsync(lun, start, count, Report))
-                .ConfigureAwait(false);
+                ;
 
             return count;
         });
@@ -258,7 +258,7 @@ public sealed partial class SectorsViewModel : ViewModelBase
         var sw = Stopwatch.StartNew();
         try
         {
-            var count = await body().ConfigureAwait(true);
+            var count = await body();
             sw.Stop();
             Status = Localizer.Instance.Format("Sectors_StatusDoneFormat", count, sw.Elapsed.TotalSeconds);
         }

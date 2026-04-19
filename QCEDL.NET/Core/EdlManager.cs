@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
+using LibUsbDotNet.LibUsb;
 using LibUsbDotNet.Main;
 using QCEDL.NET.PartitionTable;
 using QCEDL.NET.Todo;
@@ -407,6 +408,206 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
     }
 
     /// <summary>
+    /// Enumerates EDL-capable devices visible to the selected transport backend.
+    /// Non-destructive: does not open any device, so it is safe to call while a
+    /// session is active. Honors <see cref="EdlOptions.Vid"/> / <see cref="EdlOptions.Pid"/>
+    /// overrides and the chosen <see cref="EdlOptions.Backend"/>. Direct-mode options
+    /// (<c>--hostdev-as-target</c>, <c>--radxa-wos-platform</c>) bypass device discovery
+    /// entirely and return an empty list.
+    /// </summary>
+    public static IReadOnlyList<DeviceCandidate> EnumerateDevices(EdlOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        var isMac = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        if (!isWindows && !isLinux && !isMac)
+        {
+            return [];
+        }
+
+        var backend = ResolveBackend(options.Backend, isWindows);
+        return backend == TransportBackend.Serial
+            ? isLinux ? EnumerateLinuxSerial(options)
+                : isWindows ? EnumerateWindowsSerial(options)
+                : isMac ? EnumerateMacOsSerial()
+                : []
+            : EnumerateLibUsb(options);
+    }
+
+    private static List<DeviceCandidate> EnumerateLibUsb(EdlOptions options)
+    {
+        if (QualcommSerial.LibUsbContext == null)
+        {
+            return [];
+        }
+
+        var vid = options.Vid ?? DefaultVid;
+        var pids = options.Pid.HasValue ? [options.Pid.Value] : DefaultPids;
+
+        var results = new List<DeviceCandidate>();
+        try
+        {
+            foreach (var candidate in QualcommSerial.LibUsbContext.List())
+            {
+                if (candidate is not UsbDevice dev || dev.VendorId != vid)
+                {
+                    continue;
+                }
+                if (!pids.Contains(dev.ProductId))
+                {
+                    continue;
+                }
+
+                var id = FormatUsbDevicePath(dev.VendorId, dev.ProductId, dev.BusNumber, dev.Address);
+                var display = $"USB {dev.VendorId:X4}:{dev.ProductId:X4} @ bus {dev.BusNumber} addr {dev.Address}";
+                var details = $"VID=0x{dev.VendorId:X4}, PID=0x{dev.ProductId:X4}, bus={dev.BusNumber}, addr={dev.Address}";
+                results.Add(new DeviceCandidate(id, display, details, TransportBackend.LibUsb));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.Log($"LibUsb enumeration failed: {ex.Message}", LogLevel.Warning);
+        }
+        return results;
+    }
+
+    private static List<DeviceCandidate> EnumerateLinuxSerial(EdlOptions options)
+    {
+        var targetVid = (options.Vid ?? DefaultVid).ToString("x4", CultureInfo.InvariantCulture);
+        var targetPids = options.Pid.HasValue
+            ? [options.Pid.Value.ToString("x4", CultureInfo.InvariantCulture)]
+            : DefaultPids.Select(p => p.ToString("x4", CultureInfo.InvariantCulture)).ToArray();
+
+        var results = new List<DeviceCandidate>();
+        try
+        {
+            var sysTtyPath = "/sys/class/tty";
+            if (!Directory.Exists(sysTtyPath))
+            {
+                return results;
+            }
+            foreach (var dirName in Directory.GetDirectories(sysTtyPath))
+            {
+                var ttyName = Path.GetFileName(dirName);
+                if (!ttyName.StartsWith("ttyUSB", StringComparison.Ordinal) &&
+                    !ttyName.StartsWith("ttyACM", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var realDevicePath = new FileInfo(dirName).ResolveLinkTarget(true)?.FullName;
+                if (realDevicePath == null)
+                {
+                    continue;
+                }
+                var ttyDir = Directory.GetParent(realDevicePath);
+                var usbInterfaceDir = ttyDir?.Parent;
+                var usbDeviceDir = usbInterfaceDir?.Parent;
+                if (usbDeviceDir == null)
+                {
+                    continue;
+                }
+                if (ttyName.StartsWith("ttyUSB", StringComparison.Ordinal))
+                {
+                    usbDeviceDir = usbDeviceDir.Parent;
+                    if (usbDeviceDir == null)
+                    {
+                        continue;
+                    }
+                }
+
+                var vidPath = Path.Combine(usbDeviceDir.FullName, "idVendor");
+                var pidPath = Path.Combine(usbDeviceDir.FullName, "idProduct");
+                if (!File.Exists(vidPath) || !File.Exists(pidPath))
+                {
+                    continue;
+                }
+                var vid = File.ReadAllText(vidPath).Trim();
+                var pid = File.ReadAllText(pidPath).Trim();
+                if (!vid.Equals(targetVid, StringComparison.OrdinalIgnoreCase) ||
+                    !targetPids.Any(tp => pid.Equals(tp, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+                var devPath = Path.Combine("/dev", ttyName);
+                if (!File.Exists(devPath))
+                {
+                    continue;
+                }
+                results.Add(new DeviceCandidate(
+                    devPath,
+                    devPath,
+                    $"VID={vid}, PID={pid}",
+                    TransportBackend.Serial));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.Log($"Linux serial enumeration failed: {ex.Message}", LogLevel.Warning);
+        }
+        return results;
+    }
+
+    private static List<DeviceCandidate> EnumerateMacOsSerial()
+    {
+        var results = new List<DeviceCandidate>();
+        try
+        {
+            foreach (var path in Directory.EnumerateFiles("/dev", "tty.usbserial-*", SearchOption.TopDirectoryOnly)
+                         .OrderBy(p => p, StringComparer.Ordinal))
+            {
+                results.Add(new DeviceCandidate(path, path, "/dev/tty.usbserial-*", TransportBackend.Serial));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.Log($"macOS serial enumeration failed: {ex.Message}", LogLevel.Warning);
+        }
+        return results;
+    }
+
+    private static List<DeviceCandidate> EnumerateWindowsSerial(EdlOptions options)
+    {
+        var targetVid = options.Vid ?? DefaultVid;
+        var targetPids = options.Pid.HasValue ? [options.Pid.Value] : DefaultPids;
+
+        var results = new List<DeviceCandidate>();
+        try
+        {
+            var seen = new HashSet<int>();
+            foreach (var (pathName, busName, devInst) in UsbExtensions.GetDeviceInfos(ComPortGuid))
+            {
+                if (pathName is null)
+                {
+                    continue;
+                }
+                var isQualcomm = pathName.Contains($"VID_{targetVid:X4}&", StringComparison.OrdinalIgnoreCase);
+                var isEdl = targetPids.Any(pid => pathName.Contains($"&PID_{pid:X4}", StringComparison.OrdinalIgnoreCase));
+                if (!isQualcomm || !isEdl)
+                {
+                    continue;
+                }
+                if (!seen.Add(devInst))
+                {
+                    continue;
+                }
+                results.Add(new DeviceCandidate(
+                    pathName,
+                    string.IsNullOrEmpty(busName) ? pathName : busName,
+                    $"Path: {pathName}",
+                    TransportBackend.Serial));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.Log($"Windows serial enumeration failed: {ex.Message}", LogLevel.Warning);
+        }
+        return results;
+    }
+
+    /// <summary>
     /// Finds a compatible EDL device.
     /// </summary>
     /// <returns>True if a device is found, false otherwise.</returns>
@@ -487,9 +688,29 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
         var vidToFind = globalOptions.Vid ?? DefaultVid;
         var pidsToFind = globalOptions.Pid.HasValue ? [globalOptions.Pid.Value] : DefaultPids;
 
-        // string serialToFind = _globalOptions.SerialNumber; // If you add a serial number option
         try
         {
+            // Honor a pinned selection first: parse bus/addr from UsbDeviceId and match that specific device.
+            if (!string.IsNullOrWhiteSpace(globalOptions.UsbDeviceId) &&
+                TryParseUsbDeviceId(globalOptions.UsbDeviceId, out var pinnedVid, out var pinnedPid, out var pinnedBus, out var pinnedAddr))
+            {
+                foreach (var candidate in QualcommSerial.LibUsbContext.List())
+                {
+                    if (candidate is UsbDevice dev &&
+                        dev.VendorId == pinnedVid &&
+                        dev.ProductId == pinnedPid &&
+                        dev.BusNumber == pinnedBus &&
+                        dev.Address == pinnedAddr)
+                    {
+                        _devicePath = FormatUsbDevicePath(pinnedVid, pinnedPid, pinnedBus, pinnedAddr);
+                        _deviceGuid = WinUsbGuid;
+                        Logging.Log($"LibUsbDotNet: using pinned device {_devicePath}", LogLevel.Debug);
+                        return true;
+                    }
+                }
+                Logging.Log($"LibUsbDotNet: pinned device '{globalOptions.UsbDeviceId}' not found; falling back to first-match.", LogLevel.Warning);
+            }
+
             foreach (var pidToFind in pidsToFind)
             {
                 var finder = new UsbDeviceFinder
@@ -497,15 +718,12 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
                     Vid = vidToFind,
                     Pid = pidToFind
                 };
-                // if (!string.IsNullOrEmpty(serialToFind)) finder.SerialNumber = serialToFind;
 
-                var usbDevice = QualcommSerial.LibUsbContext.Find(finder);
-                if (usbDevice != null)
+                if (QualcommSerial.LibUsbContext.Find(finder) is UsbDevice usbDevice)
                 {
-                    // _libUsbSerialNumber = serialToFind; // If used
-                    _devicePath = $"usb:vid_{vidToFind:X4},pid_{pidToFind:X4}";
+                    _devicePath = FormatUsbDevicePath(vidToFind, pidToFind, usbDevice.BusNumber, usbDevice.Address);
                     _deviceGuid = WinUsbGuid; // Use WinUSBGuid to signify LibUsbDotNet backend to QualcommSerial
-                    Logging.Log($"LibUsbDotNet found device: VID={vidToFind:X4}, PID={pidToFind:X4}. Path set to: {_devicePath}", LogLevel.Debug);
+                    Logging.Log($"LibUsbDotNet found device: VID={vidToFind:X4}, PID={pidToFind:X4} @ bus {usbDevice.BusNumber} addr {usbDevice.Address}. Path set to: {_devicePath}", LogLevel.Debug);
                     return true;
                 }
 
@@ -519,6 +737,37 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
         {
             Logging.Log($"Error during LibUsbDotNet device discovery on Linux: {ex.Message}", LogLevel.Error);
             Logging.Log(ex.ToString(), LogLevel.Debug);
+            return false;
+        }
+    }
+
+    private static string FormatUsbDevicePath(int vid, int pid, byte bus, byte addr)
+    {
+        return $"usb:vid_{vid:X4},pid_{pid:X4},bus_{bus},addr_{addr}";
+    }
+
+    private static bool TryParseUsbDeviceId(string id, out int vid, out int pid, out byte bus, out byte addr)
+    {
+        vid = pid = 0;
+        bus = addr = 0;
+        try
+        {
+            var vidMatch = System.Text.RegularExpressions.Regex.Match(id, @"vid_([0-9A-Fa-f]{4})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var pidMatch = System.Text.RegularExpressions.Regex.Match(id, @"pid_([0-9A-Fa-f]{4})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var busMatch = System.Text.RegularExpressions.Regex.Match(id, @"bus_([0-9]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var addrMatch = System.Text.RegularExpressions.Regex.Match(id, @"addr_([0-9]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (!vidMatch.Success || !pidMatch.Success || !busMatch.Success || !addrMatch.Success)
+            {
+                return false;
+            }
+            vid = int.Parse(vidMatch.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            pid = int.Parse(pidMatch.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            bus = byte.Parse(busMatch.Groups[1].Value, CultureInfo.InvariantCulture);
+            addr = byte.Parse(addrMatch.Groups[1].Value, CultureInfo.InvariantCulture);
+            return true;
+        }
+        catch
+        {
             return false;
         }
     }

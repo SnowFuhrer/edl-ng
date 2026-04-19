@@ -278,7 +278,7 @@ public sealed partial class RawProgramViewModel : ViewModelBase
             var dir = new DirectoryInfo(DumpOutputDir);
 
             await _service.RunExclusiveAsync(m => DumpRawprogramRunner.RunAsync(
-                m, dir, lun, DumpGenXmlOnly, skipSet, OnDumpProgress)).ConfigureAwait(false);
+                m, dir, lun, DumpGenXmlOnly, skipSet, OnDumpProgress));
         });
     }
 
@@ -316,7 +316,7 @@ public sealed partial class RawProgramViewModel : ViewModelBase
         var sw = Stopwatch.StartNew();
         try
         {
-            await body().ConfigureAwait(true);
+            await body();
             sw.Stop();
             ExecStatus = Localizer.Instance.Format("Raw_ExecDoneFormat", sw.Elapsed.TotalSeconds);
         }
@@ -348,7 +348,7 @@ public sealed partial class RawProgramViewModel : ViewModelBase
         var sw = Stopwatch.StartNew();
         try
         {
-            await body().ConfigureAwait(true);
+            await body();
             sw.Stop();
             DumpStatus = Localizer.Instance.Format("Raw_DumpDoneFormat", sw.Elapsed.TotalSeconds);
         }

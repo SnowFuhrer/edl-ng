@@ -36,7 +36,7 @@ public static class DumpRawprogramRunner
         var effectiveLun = manager.IsDirectMode ? 0u : lun;
         var targetDescription = manager.GetTargetDescription(effectiveLun);
 
-        var geometry = await manager.GetStorageGeometryAsync(effectiveLun).ConfigureAwait(false);
+        var geometry = await manager.GetStorageGeometryAsync(effectiveLun);
         var sectorSize = geometry.SectorSize;
         var totalBlocks = geometry.TotalSectors ?? 0;
 
@@ -52,7 +52,7 @@ public static class DumpRawprogramRunner
         byte[] gptData;
         try
         {
-            gptData = await manager.ReadSectorsAsync(effectiveLun, 0, 64).ConfigureAwait(false);
+            gptData = await manager.ReadSectorsAsync(effectiveLun, 0, 64);
         }
         catch (Exception ex)
         {
@@ -95,10 +95,10 @@ public static class DumpRawprogramRunner
         {
             try
             {
-                mainGptDataOut = await manager.ReadSectorsAsync(effectiveLun, 0, (uint)mainGptSectors).ConfigureAwait(false);
+                mainGptDataOut = await manager.ReadSectorsAsync(effectiveLun, 0, (uint)mainGptSectors);
                 if (mainGptDataOut.Length >= sectorSize)
                 {
-                    await File.WriteAllBytesAsync(mainGptPath, mainGptDataOut, ct).ConfigureAwait(false);
+                    await File.WriteAllBytesAsync(mainGptPath, mainGptDataOut, ct);
                     Logging.Log($"Saved main GPT to '{mainGptPath}' ({mainGptSectors} sectors)", LogLevel.Info);
                 }
             }
@@ -116,10 +116,10 @@ public static class DumpRawprogramRunner
         {
             try
             {
-                backupGptDataOut = await manager.ReadSectorsAsync(effectiveLun, gpt.Header.LastUsableLBA + 1, (uint)backupGptSectors).ConfigureAwait(false);
+                backupGptDataOut = await manager.ReadSectorsAsync(effectiveLun, gpt.Header.LastUsableLBA + 1, (uint)backupGptSectors);
                 if (backupGptDataOut.Length >= sectorSize)
                 {
-                    await File.WriteAllBytesAsync(backupGptPath, backupGptDataOut, ct).ConfigureAwait(false);
+                    await File.WriteAllBytesAsync(backupGptPath, backupGptDataOut, ct);
                     Logging.Log($"Saved backup GPT to '{backupGptPath}' ({backupGptSectors} sectors)", LogLevel.Info);
                 }
             }
@@ -238,7 +238,7 @@ public static class DumpRawprogramRunner
             try
             {
                 await using var fs = File.Open(partPath, FileMode.Create, FileAccess.Write, FileShare.None);
-                await manager.ReadSectorsToStreamAsync(effectiveLun, part.FirstLBA, numSectors, fs, Report).ConfigureAwait(false);
+                await manager.ReadSectorsToStreamAsync(effectiveLun, part.FirstLBA, numSectors, fs, Report);
                 sw.Stop();
             }
             catch (Exception ex)

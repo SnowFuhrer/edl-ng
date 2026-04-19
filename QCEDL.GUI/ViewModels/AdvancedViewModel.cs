@@ -114,7 +114,7 @@ public sealed partial class AdvancedViewModel : ViewModelBase
             async () =>
             {
                 var file = new FileInfo(ProvisionXmlPath);
-                await _service.RunExclusiveAsync(m => ProvisionRunner.RunAsync(m, file)).ConfigureAwait(false);
+                await _service.RunExclusiveAsync(m => ProvisionRunner.RunAsync(m, file));
             });
     }
 
@@ -134,13 +134,13 @@ public sealed partial class AdvancedViewModel : ViewModelBase
             "Adv_UploadDoneFormat",
             () => _service.RunExclusiveAsync(async m =>
             {
-                var mode = await m.DetectCurrentModeAsync().ConfigureAwait(false);
+                var mode = await m.DetectCurrentModeAsync();
                 if (mode != DeviceMode.Sahara)
                 {
                     throw new InvalidOperationException(
                         Localizer.Instance.Format("Adv_UploadWrongModeFormat", mode));
                 }
-                await m.UploadLoaderViaSaharaAsync().ConfigureAwait(false);
+                await m.UploadLoaderViaSaharaAsync();
             }));
     }
 
@@ -169,8 +169,8 @@ public sealed partial class AdvancedViewModel : ViewModelBase
             "Adv_ResetDoneFormat",
             () => _service.RunExclusiveAsync(async m =>
             {
-                await m.EnsureFirehoseModeAsync().ConfigureAwait(false);
-                var ok = await Task.Run(() => m.Firehose.Reset(ResetMode, delay)).ConfigureAwait(false);
+                await m.EnsureFirehoseModeAsync();
+                var ok = await Task.Run(() => m.Firehose.Reset(ResetMode, delay));
                 if (!ok)
                 {
                     throw new InvalidOperationException(
@@ -195,7 +195,7 @@ public sealed partial class AdvancedViewModel : ViewModelBase
         var sw = Stopwatch.StartNew();
         try
         {
-            await body().ConfigureAwait(true);
+            await body();
             sw.Stop();
             setStatus(Localizer.Instance.Format(doneFormat, sw.Elapsed.TotalSeconds));
         }

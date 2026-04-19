@@ -28,4 +28,12 @@ public sealed class EdlOptions
     public bool RadxaWosPlatform { get; set; }
     public TransportBackend Backend { get; set; } = TransportBackend.Auto;
     public string? SerialDevicePath { get; set; }
+
+    /// <summary>
+    /// Opaque identifier for a specific LibUsb device, in the form
+    /// <c>usb:vid_XXXX,pid_YYYY,bus_N,addr_M</c>. Set by the GUI device
+    /// enumerator when the user pins one of several candidates. When null, the
+    /// backend falls back to first-match-by-VID/PID.
+    /// </summary>
+    public string? UsbDeviceId { get; set; }
 }

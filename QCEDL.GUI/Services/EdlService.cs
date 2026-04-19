@@ -41,10 +41,10 @@ public sealed class EdlService : IDisposable
     public async Task<T> RunExclusiveAsync<T>(Func<EdlManager, Task<T>> action, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(action);
-        await _opLock.WaitAsync(ct).ConfigureAwait(false);
+        await _opLock.WaitAsync(ct);
         try
         {
-            return await action(EnsureManager()).ConfigureAwait(false);
+            return await action(EnsureManager());
         }
         finally
         {
@@ -57,29 +57,38 @@ public sealed class EdlService : IDisposable
     {
         return RunExclusiveAsync(async m =>
         {
-            await action(m).ConfigureAwait(false);
+            await action(m);
             return 0;
         }, ct);
     }
 
     public async Task<DeviceMode> ProbeAsync(CancellationToken ct = default)
     {
-        return await RunExclusiveAsync(m => m.DetectCurrentModeAsync(forceReconnect: true), ct).ConfigureAwait(false);
+        return await RunExclusiveAsync(m => m.DetectCurrentModeAsync(forceReconnect: true), ct);
+    }
+
+    /// <summary>
+    /// Enumerate EDL devices visible to the current <see cref="Options"/> snapshot. Does
+    /// not touch the session; safe to call at any time.
+    /// </summary>
+    public Task<IReadOnlyList<DeviceCandidate>> EnumerateDevicesAsync(CancellationToken ct = default)
+    {
+        return Task.Run(() => EdlManager.EnumerateDevices(CloneOptions(Options)), ct);
     }
 
     public async Task EnsureFirehoseAsync(CancellationToken ct = default)
     {
-        await RunExclusiveAsync(m => m.EnsureFirehoseModeAsync(), ct).ConfigureAwait(false);
+        await RunExclusiveAsync(m => m.EnsureFirehoseModeAsync(), ct);
     }
 
     public async Task<StorageGeometry> GetGeometryAsync(uint lun, CancellationToken ct = default)
     {
-        return await RunExclusiveAsync(m => m.GetStorageGeometryAsync(lun), ct).ConfigureAwait(false);
+        return await RunExclusiveAsync(m => m.GetStorageGeometryAsync(lun), ct);
     }
 
     public async Task<byte[]> ReadSectorsAsync(uint lun, ulong start, uint count, CancellationToken ct = default)
     {
-        return await RunExclusiveAsync(m => m.ReadSectorsAsync(lun, start, count), ct).ConfigureAwait(false);
+        return await RunExclusiveAsync(m => m.ReadSectorsAsync(lun, start, count), ct);
     }
 
     public void ResetSession()
@@ -109,6 +118,9 @@ public sealed class EdlService : IDisposable
             HostDevAsTarget = src.HostDevAsTarget,
             ImgSize = src.ImgSize,
             RadxaWosPlatform = src.RadxaWosPlatform,
+            Backend = src.Backend,
+            SerialDevicePath = src.SerialDevicePath,
+            UsbDeviceId = src.UsbDeviceId,
         };
     }
 }

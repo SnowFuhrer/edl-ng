@@ -103,6 +103,7 @@
   <data name="Conn_Slot" xml:space="preserve"><value>スロット</value></data>
   <data name="Conn_DirectCardTitle" xml:space="preserve"><value>ダイレクトモード</value></data>
   <data name="Conn_DirectCardCaption" xml:space="preserve"><value>ホストブロックデバイスやファイルイメージへの書き込み時に、USB / ファイアホース を完全にバイパスします。</value></data>
+  <data name="Conn_DirectEnabled" xml:space="preserve"><value>ダイレクトモードを有効化</value></data>
   <data name="Conn_HostDevice" xml:space="preserve"><value>ホストデバイス</value></data>
   <data name="Conn_HostDevicePlaceholder" xml:space="preserve"><value>/dev/mtd0 または /path/to/file.img</value></data>
   <data name="Conn_ImageSize" xml:space="preserve"><value>イメージサイズ</value></data>
@@ -110,7 +111,10 @@
   <data name="Conn_RadxaWos" xml:space="preserve"><value>Radxa WoS</value></data>
   <data name="Conn_RadxaCheckbox" xml:space="preserve"><value>Radxa Windows-on-Snapdragon SPI NOR バックエンドを使用(ウィンドウズ のみ)</value></data>
   <data name="Conn_StatusTitle" xml:space="preserve"><value>状態</value></data>
-  <data name="Conn_ModeLabel" xml:space="preserve"><value>モード:</value></data>
+  <data name="Conn_ModeLabel" xml:space="preserve"><value>モード</value></data>
+  <data name="Conn_StatusFieldLabel" xml:space="preserve"><value>ステータス</value></data>
+  <data name="Conn_StepDiscover" xml:space="preserve"><value>STEP 01 · 検出</value></data>
+  <data name="Conn_StepSession" xml:space="preserve"><value>STEP 02 · セッション</value></data>
   <data name="Conn_ConnectButton" xml:space="preserve"><value>接続</value></data>
   <data name="Conn_ProbeButton" xml:space="preserve"><value>モード検出</value></data>
   <data name="Conn_DisconnectButton" xml:space="preserve"><value>切断</value></data>
@@ -127,6 +131,22 @@
   <data name="Conn_StatusFirehoseConnected" xml:space="preserve"><value>ファイアホース モードで接続しました。</value></data>
   <data name="Conn_StatusDisconnected" xml:space="preserve"><value>切断しました。</value></data>
   <data name="Conn_LogSessionClosed" xml:space="preserve"><value>セッションを閉じました。</value></data>
+
+  <data name="Conn_DevicesCardTitle" xml:space="preserve"><value>デバイスとセッション</value></data>
+  <data name="Conn_DevicesCardCaption" xml:space="preserve"><value>まず EDL デバイスを検索し、一覧で確認してから接続します。複数接続時で未選択の場合は Connect 時に選択ダイアログが表示されます。</value></data>
+  <data name="Conn_ScanDevicesButton" xml:space="preserve"><value>デバイスを検索</value></data>
+  <data name="Conn_ClearDeviceSelection" xml:space="preserve"><value>選択を解除</value></data>
+  <data name="Conn_DevicesEmpty" xml:space="preserve"><value>まだ検索していません。「デバイスを検索」を押してください。</value></data>
+  <data name="Conn_DevicesNoneFound" xml:space="preserve"><value>選択中のバックエンドで EDL デバイスが見つかりません。</value></data>
+  <data name="Conn_DevicesFoundFormat" xml:space="preserve"><value>{0} 台の候補デバイスを検出しました。</value></data>
+  <data name="Conn_DeviceSelectedFormat" xml:space="preserve"><value>選択中のデバイス: {0}</value></data>
+  <data name="Conn_LogMultipleFoundPrompt" xml:space="preserve"><value>複数のデバイスを検出しました — ユーザーに選択を求めます。</value></data>
+  <data name="Conn_LogSelectionCancelled" xml:space="preserve"><value>デバイス選択をキャンセルしました。</value></data>
+
+  <data name="DeviceChooser_Title" xml:space="preserve"><value>デバイスを選択</value></data>
+  <data name="DeviceChooser_Prompt" xml:space="preserve"><value>現在のトランスポート バックエンドで複数の EDL デバイスが見つかりました。使用するものを選んでください。</value></data>
+  <data name="DeviceChooser_Confirm" xml:space="preserve"><value>このデバイスを使う</value></data>
+  <data name="DeviceChooser_Cancel" xml:space="preserve"><value>キャンセル</value></data>
 
   <data name="Parts_Label" xml:space="preserve"><value>パーティション</value></data>
   <data name="Parts_Heading" xml:space="preserve"><value>GPT インスペクター</value></data>

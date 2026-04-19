@@ -37,6 +37,6 @@ public static class AppCommands
             return;
         }
 
-        await AboutDialog.ShowAsync(d.MainWindow).ConfigureAwait(true);
+        await AboutDialog.ShowAsync(d.MainWindow);
     });
 }

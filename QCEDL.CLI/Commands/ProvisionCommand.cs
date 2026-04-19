@@ -29,7 +29,7 @@ internal sealed class ProvisionCommand
         return await CommandExecutor.RunAsync("provision", async () =>
         {
             using var manager = new EdlManager(globalOptions);
-            return await ProvisionRunner.RunAsync(manager, xmlFile).ConfigureAwait(false);
+            return await ProvisionRunner.RunAsync(manager, xmlFile);
         });
     }
 }

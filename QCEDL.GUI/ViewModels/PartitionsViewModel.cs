@@ -153,14 +153,14 @@ public sealed partial class PartitionsViewModel : ViewModelBase
 
             await _service.RunExclusiveAsync(async m =>
             {
-                var luns = await m.DetermineLunsToScanAsync(lunParam).ConfigureAwait(false);
+                var luns = await m.DetermineLunsToScanAsync(lunParam);
                 foreach (var lun in luns)
                 {
                     try
                     {
                         var effectiveLun = m.IsDirectMode ? 0u : lun;
-                        var geometry = await m.GetStorageGeometryAsync(effectiveLun).ConfigureAwait(false);
-                        var data = await m.ReadSectorsAsync(effectiveLun, 0, 64).ConfigureAwait(false);
+                        var geometry = await m.GetStorageGeometryAsync(effectiveLun);
+                        var data = await m.ReadSectorsAsync(effectiveLun, 0, 64);
                         using var stream = new MemoryStream(data);
                         var gpt = Gpt.ReadFromStream(stream, (int)geometry.SectorSize);
                         if (gpt is null)
@@ -190,7 +190,7 @@ public sealed partial class PartitionsViewModel : ViewModelBase
                         break;
                     }
                 }
-            }).ConfigureAwait(false);
+            });
 
             SetStatus("Parts_StatusFoundFormat", Partitions.Count);
         }
@@ -228,12 +228,12 @@ public sealed partial class PartitionsViewModel : ViewModelBase
         {
             var lun = ParseLun(OpLun);
             var found = await _service.RunExclusiveAsync(m => m.FindPartitionWithLunAsync(name, lun))
-                .ConfigureAwait(false) ?? throw new InvalidOperationException(
+                 ?? throw new InvalidOperationException(
                     Localizer.Instance.Format("Parts_Ops_PartitionNotFoundFormat", name));
 
             var (partition, actualLun) = found;
             var sectorCount = partition.LastLBA - partition.FirstLBA + 1;
-            var geometry = await _service.GetGeometryAsync(actualLun).ConfigureAwait(false);
+            var geometry = await _service.GetGeometryAsync(actualLun);
             ResetProgress(ClampToLong(sectorCount * geometry.SectorSize));
 
             var dir = Path.GetDirectoryName(savePath);
@@ -245,7 +245,7 @@ public sealed partial class PartitionsViewModel : ViewModelBase
             await using var file = File.Open(savePath, FileMode.Create, FileAccess.Write, FileShare.None);
             await _service.RunExclusiveAsync(m => m.ReadSectorsToStreamAsync(
                 actualLun, partition.FirstLBA, sectorCount, file, ReportProgress))
-                .ConfigureAwait(false);
+                ;
         });
     }
 
@@ -282,11 +282,11 @@ public sealed partial class PartitionsViewModel : ViewModelBase
         {
             var lun = ParseLun(OpLun);
             var found = await _service.RunExclusiveAsync(m => m.FindPartitionWithLunAsync(name, lun))
-                .ConfigureAwait(false) ?? throw new InvalidOperationException(
+                 ?? throw new InvalidOperationException(
                     Localizer.Instance.Format("Parts_Ops_PartitionNotFoundFormat", name));
 
             var (partition, actualLun) = found;
-            var geometry = await _service.GetGeometryAsync(actualLun).ConfigureAwait(false);
+            var geometry = await _service.GetGeometryAsync(actualLun);
             var partitionBytes = (partition.LastLBA - partition.FirstLBA + 1) * geometry.SectorSize;
             if ((ulong)info.Length > partitionBytes)
             {
@@ -306,8 +306,8 @@ public sealed partial class PartitionsViewModel : ViewModelBase
                     stream.Length,
                     padToSector: true,
                     info.Name,
-                    ReportProgress).ConfigureAwait(false);
-            }).ConfigureAwait(false);
+                    ReportProgress);
+            });
         });
     }
 
@@ -334,17 +334,17 @@ public sealed partial class PartitionsViewModel : ViewModelBase
         {
             var lun = ParseLun(OpLun);
             var found = await _service.RunExclusiveAsync(m => m.FindPartitionWithLunAsync(name, lun))
-                .ConfigureAwait(false) ?? throw new InvalidOperationException(
+                 ?? throw new InvalidOperationException(
                     Localizer.Instance.Format("Parts_Ops_PartitionNotFoundFormat", name));
 
             var (partition, actualLun) = found;
             var sectorCount = partition.LastLBA - partition.FirstLBA + 1;
-            var geometry = await _service.GetGeometryAsync(actualLun).ConfigureAwait(false);
+            var geometry = await _service.GetGeometryAsync(actualLun);
             ResetProgress(ClampToLong(sectorCount * geometry.SectorSize));
 
             await _service.RunExclusiveAsync(m => m.EraseSectorsAsync(
                 actualLun, partition.FirstLBA, sectorCount, ReportProgress))
-                .ConfigureAwait(false);
+                ;
         });
     }
 
@@ -381,7 +381,7 @@ public sealed partial class PartitionsViewModel : ViewModelBase
         var sw = Stopwatch.StartNew();
         try
         {
-            await body().ConfigureAwait(true);
+            await body();
             sw.Stop();
             OpStatus = Localizer.Instance.Format("Parts_Ops_StatusDoneFormat", label, sw.Elapsed.TotalSeconds);
         }
