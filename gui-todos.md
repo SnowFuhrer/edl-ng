@@ -114,11 +114,11 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 - [Done] `reset` with mode + delay.
 
 **Phase 4 — Polish**
-- [Todo] Keyboard shortcuts, focus visuals audit, contrast audit.
-- [Todo] Settings persistence (log level, last loader, last VID/PID).
-- [Todo] About pane + version.
-- [Todo] Multi-device selection UX (CLI currently picks the first).
-- [Todo] Streaming probe / emergency-flash 9006 handling.
+- [Done] Keyboard shortcuts, focus visuals audit, contrast audit.
+- [Done] Settings persistence (log level, last loader, last VID/PID, memory type, backend).
+- [Done] About pane + version.
+- [Deferred] Multi-device selection UX — CLI layer currently picks the first match; revisit once `EdlManager` surfaces an enumerator.
+- [Deferred] Streaming probe / emergency-flash 9006 handling — blocked on protocol-layer work.
 
 ---
 
@@ -147,7 +147,9 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 | `reset` | 3 | Done | Mode + delay on Advanced view; confirmation required. |
 | Destructive-action confirmation dialog | 2 | Done | `Views/ConfirmDialog` + `ConfirmDialogViewModel`. Supports plain confirm and typed-string double-confirm. |
 | Cancellable progress | 2 | Todo | Underlying Firehose/Sahara paths don't accept a `CancellationToken`; revisit once the protocol layer exposes one. |
-| Settings persistence | 4 | Todo | |
+| Settings persistence | 4 | Done | `GuiSettings.Current` shared model persists culture, log level, last loader path, VID/PID, memory type, and transport backend. |
+| Keyboard shortcuts | 4 | Done | `Window.KeyBindings` + NativeMenu gestures wire Ctrl/Cmd+1..7 for nav, Ctrl+, for Settings, F1 for docs. |
+| Focus visuals | 4 | Done | Buttons and ListBoxItems highlight with the Focus Blue ring on keyboard focus; TextBox/ComboBox already had it. |
 
 ---
 
@@ -170,3 +172,8 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 
 - **2026-04-19** — Initial audit + Phase 0 + Phase 1 (Overview, Connection, Partitions
   `printgpt`) implemented. Remaining work tracked in Section 5.
+- **2026-04-19** — Phase 4 polish: extended `GuiSettings` to persist log level + last-used
+  Connection options, added a Log-level picker to Settings, wired cross-platform nav
+  shortcuts via `Window.KeyBindings`, and strengthened Focus-Blue focus rings on buttons /
+  nav items. Multi-device selection and 9006 emergency-flash handling remain deferred on
+  the protocol layer.

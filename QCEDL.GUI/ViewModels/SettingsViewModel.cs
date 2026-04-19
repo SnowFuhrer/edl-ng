@@ -1,4 +1,5 @@
 using System.Globalization;
+using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
 using ReactiveUI;
 
@@ -7,10 +8,12 @@ namespace QCEDL.GUI.ViewModels;
 public sealed class SettingsViewModel : ViewModelBase
 {
     private CultureInfo _selectedLanguage;
+    private LogLevel _selectedLogLevel;
 
     public SettingsViewModel()
     {
         _selectedLanguage = Localizer.Instance.Culture;
+        _selectedLogLevel = Logging.CurrentLogLevel;
 
         // Keep selection synced if culture is changed elsewhere (e.g. from startup defaults).
         Localizer.Instance.CultureChanged += (_, _) =>
@@ -24,6 +27,7 @@ public sealed class SettingsViewModel : ViewModelBase
     }
 
     public IReadOnlyList<CultureInfo> Languages { get; } = Localizer.SupportedCultures;
+    public IReadOnlyList<LogLevel> LogLevels { get; } = Enum.GetValues<LogLevel>();
 
     public CultureInfo SelectedLanguage
     {
@@ -37,7 +41,25 @@ public sealed class SettingsViewModel : ViewModelBase
 
             this.RaiseAndSetIfChanged(ref _selectedLanguage, value);
             Localizer.Instance.Culture = value;
-            GuiSettings.Save(new GuiSettingsModel { Culture = value.Name });
+            GuiSettings.Current.Culture = value.Name;
+            GuiSettings.Save();
+        }
+    }
+
+    public LogLevel SelectedLogLevel
+    {
+        get => _selectedLogLevel;
+        set
+        {
+            if (_selectedLogLevel == value)
+            {
+                return;
+            }
+
+            this.RaiseAndSetIfChanged(ref _selectedLogLevel, value);
+            Logging.CurrentLogLevel = value;
+            GuiSettings.Current.LogLevel = value.ToString();
+            GuiSettings.Save();
         }
     }
 }

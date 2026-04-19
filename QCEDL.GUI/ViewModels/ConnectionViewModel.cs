@@ -15,9 +15,9 @@ public sealed partial class ConnectionViewModel : ViewModelBase
     private readonly IObservable<bool> _canRun;
 
     [Reactive] private string? _loaderPath;
-    [Reactive] private string _vidHex = "05C6";
-    [Reactive] private string _pidHex = "9008";
-    [Reactive] private StorageType _memoryType = StorageType.Ufs;
+    [Reactive] private string _vidHex;
+    [Reactive] private string _pidHex;
+    [Reactive] private StorageType _memoryType;
     [Reactive] private uint _slot;
     [Reactive] private string? _hostDevTarget;
     [Reactive] private string? _imgSize;
@@ -25,7 +25,7 @@ public sealed partial class ConnectionViewModel : ViewModelBase
     [Reactive] private string? _serialDevicePath;
     [Reactive] private bool _isBusy;
 
-    private TransportBackend _backend = TransportBackend.Auto;
+    private TransportBackend _backend;
     private string _statusKey = "Conn_StatusNotConnected";
     private object?[] _statusArgs = [];
     private string _modeKey = "Conn_ModeUnknown";
@@ -38,6 +38,14 @@ public sealed partial class ConnectionViewModel : ViewModelBase
 
         MemoryTypes = Enum.GetValues<StorageType>();
         Backends = Enum.GetValues<TransportBackend>();
+
+        // Seed from persisted values so the user's last target stays around across launches.
+        var settings = GuiSettings.Current;
+        _loaderPath = settings.LoaderPath;
+        _vidHex = string.IsNullOrWhiteSpace(settings.VidHex) ? "05C6" : settings.VidHex;
+        _pidHex = string.IsNullOrWhiteSpace(settings.PidHex) ? "9008" : settings.PidHex;
+        _memoryType = Enum.TryParse<StorageType>(settings.MemoryType, ignoreCase: true, out var mt) ? mt : StorageType.Ufs;
+        _backend = Enum.TryParse<TransportBackend>(settings.Backend, ignoreCase: true, out var be) ? be : TransportBackend.Auto;
 
         // Localized wording for the two hot paths: keep the explicit hook so the Conn_* keys drive the message.
         ConnectCommand.ThrownExceptions.Subscribe(ex =>
@@ -121,6 +129,15 @@ public sealed partial class ConnectionViewModel : ViewModelBase
                 : null,
         };
         _service.ResetSession();
+
+        // Persist last-used options so the next launch defaults to what was actually tried.
+        var prefs = GuiSettings.Current;
+        prefs.LoaderPath = LoaderPath;
+        prefs.VidHex = VidHex;
+        prefs.PidHex = PidHex;
+        prefs.MemoryType = MemoryType.ToString();
+        prefs.Backend = Backend.ToString();
+        GuiSettings.Save();
     }
 
     [ReactiveCommand(CanExecute = nameof(_canRun))]

@@ -23,6 +23,7 @@ public class App : Application
             // initial bindings already see the right language.
             var settings = GuiSettings.Load();
             Localizer.Instance.Culture = GuiSettings.ResolveStartupCulture(settings);
+            Logging.CurrentLogLevel = GuiSettings.ResolveStartupLogLevel(settings);
 
             // Swap the FontSerif/Sans/Mono resources to match the active script, and keep
             // them in sync when the user picks a different language from Settings.
