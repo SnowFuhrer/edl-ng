@@ -14,13 +14,21 @@
             <TextBlock Classes="h2" Text="{Binding Title}" />
             <TextBlock Classes="body" Text="{Binding Message}" TextWrapping="Wrap" />
 
+            <Button Classes="link"
+                    IsVisible="{Binding HasLink}"
+                    Content="{Binding LinkText}"
+                    Click="OnLinkClick" />
+
             <StackPanel Spacing="8" IsVisible="{Binding RequiresTyping}">
                 <TextBlock Classes="caption" Text="{Binding TypeToConfirmPrompt}" />
                 <TextBox Name="ConfirmInput" Text="{Binding TypedConfirmation, Mode=TwoWay}" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-                <Button Classes="ghost" Content="{Binding CancelLabel}" Click="OnCancel" />
+                <Button Classes="ghost"
+                        Content="{Binding CancelLabel}"
+                        IsVisible="{Binding ShowCancel}"
+                        Click="OnCancel" />
                 <Button Name="ConfirmButton"
                         Classes="danger"
                         Content="{Binding ConfirmLabel}"

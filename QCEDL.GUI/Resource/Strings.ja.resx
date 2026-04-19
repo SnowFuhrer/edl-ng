@@ -275,4 +275,24 @@
   <data name="Adv_ResetBadDelayFormat" xml:space="preserve"><value>遅延値が不正です: 「{0}」。0 以上の整数を指定してください。</value></data>
 
   <data name="Adv_ErrorFormat" xml:space="preserve"><value>エラー: {0}</value></data>
+
+  <data name="Menu_View" xml:space="preserve"><value>表示</value></data>
+  <data name="Menu_Device" xml:space="preserve"><value>デバイス</value></data>
+  <data name="Menu_Device_Provision" xml:space="preserve"><value>UFS プロビジョン…</value></data>
+  <data name="Menu_Device_UploadLoader" xml:space="preserve"><value>ローダーをアップロード</value></data>
+  <data name="Menu_Device_Reset" xml:space="preserve"><value>リセット / 電源…</value></data>
+  <data name="Menu_Help" xml:space="preserve"><value>ヘルプ</value></data>
+  <data name="Menu_Help_Documentation" xml:space="preserve"><value>ドキュメント</value></data>
+  <data name="Menu_Help_About" xml:space="preserve"><value>edl-ng について</value></data>
+  <data name="Menu_About_Title" xml:space="preserve"><value>edl-ng について</value></data>
+  <data name="Menu_About_Message" xml:space="preserve"><value>edl-ng は、Qualcomm Emergency Download (EDL) モード向けのクロスプラットフォームツールチェーンです。USB 経由で Sahara / Firehose プロトコルと通信します。</value></data>
+  <data name="Menu_About_LinkText" xml:space="preserve"><value>github.com/strongtz/edl-ng</value></data>
+  <data name="About_LicenseLabel" xml:space="preserve"><value>ライセンス</value></data>
+  <data name="About_LicenseText" xml:space="preserve"><value>edl-ng は MIT ライセンスで公開されています。
+Copyright © 2025 Xilin Wu およびコントリビューター。</value></data>
+  <data name="About_DependenciesLabel" xml:space="preserve"><value>依存ライブラリ</value></data>
+  <data name="About_DependenciesCaption" xml:space="preserve"><value>本ビルドには以下のサードパーティ コンポーネントが含まれています。名前をクリックするとプロジェクト ページを開きます。</value></data>
+  <data name="About_ViewLicense" xml:space="preserve"><value>ライセンス全文を表示…</value></data>
+  <data name="License_NotFoundFormat" xml:space="preserve"><value>このビルドには '{0}' のライセンス本文が含まれていません。</value></data>
+  <data name="Menu_About_Ok" xml:space="preserve"><value>閉じる</value></data>
 </root>

@@ -3,11 +3,77 @@
         xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
         xmlns:v="clr-namespace:QCEDL.GUI.Views"
         xmlns:l="clr-namespace:QCEDL.GUI.Markup"
+        xmlns:svc="clr-namespace:QCEDL.GUI.Services"
         x:Class="QCEDL.GUI.Views.MainWindow"
         x:DataType="vm:ShellViewModel"
         Title="{l:Localize App_Title}"
         Width="1180" Height="760"
         MinWidth="920" MinHeight="560">
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="{l:Localize Menu_View}">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="{l:Localize Nav_Overview}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_Overview"
+                                        Gesture="Cmd+1" />
+                        <NativeMenuItem Header="{l:Localize Nav_Connection}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_Connection"
+                                        Gesture="Cmd+2" />
+                        <NativeMenuItem Header="{l:Localize Nav_Partitions}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_Partitions"
+                                        Gesture="Cmd+3" />
+                        <NativeMenuItem Header="{l:Localize Nav_Sectors}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_Sectors"
+                                        Gesture="Cmd+4" />
+                        <NativeMenuItem Header="{l:Localize Nav_RawProgram}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_RawProgram"
+                                        Gesture="Cmd+5" />
+                        <NativeMenuItem Header="{l:Localize Nav_Advanced}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_Advanced"
+                                        Gesture="Cmd+6" />
+                        <NativeMenuItem Header="{l:Localize Nav_Logs}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_Logs"
+                                        Gesture="Cmd+7" />
+                        <NativeMenuItem Header="{l:Localize Nav_Settings}"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Nav_Settings"
+                                        Gesture="Cmd+OemComma" />
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+            <NativeMenuItem Header="{l:Localize Menu_Device}">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="{l:Localize Menu_Device_Provision}"
+                                        Command="{Binding GoAdvancedCommand}" />
+                        <NativeMenuItem Header="{l:Localize Menu_Device_UploadLoader}"
+                                        Command="{Binding GoAdvancedCommand}" />
+                        <NativeMenuItem Header="{l:Localize Menu_Device_Reset}"
+                                        Command="{Binding GoAdvancedCommand}" />
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+            <NativeMenuItem Header="{l:Localize Menu_Help}">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="{l:Localize Menu_Help_Documentation}"
+                                        Command="{x:Static svc:AppCommands.OpenDocs}"
+                                        Gesture="Cmd+Shift+OemQuestion" />
+                        <NativeMenuItem Header="{l:Localize Menu_Help_About}"
+                                        Command="{x:Static svc:AppCommands.ShowAbout}" />
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+        </NativeMenu>
+    </NativeMenu.Menu>
     <Grid ColumnDefinitions="240,*">
 
         <!-- Left rail -->

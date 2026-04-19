@@ -275,4 +275,24 @@
   <data name="Adv_ResetBadDelayFormat" xml:space="preserve"><value>Invalid delay: '{0}'. Expected a non-negative integer.</value></data>
 
   <data name="Adv_ErrorFormat" xml:space="preserve"><value>Error: {0}</value></data>
+
+  <data name="Menu_View" xml:space="preserve"><value>View</value></data>
+  <data name="Menu_Device" xml:space="preserve"><value>Device</value></data>
+  <data name="Menu_Device_Provision" xml:space="preserve"><value>UFS Provision…</value></data>
+  <data name="Menu_Device_UploadLoader" xml:space="preserve"><value>Upload Loader</value></data>
+  <data name="Menu_Device_Reset" xml:space="preserve"><value>Reset / Power…</value></data>
+  <data name="Menu_Help" xml:space="preserve"><value>Help</value></data>
+  <data name="Menu_Help_Documentation" xml:space="preserve"><value>Documentation</value></data>
+  <data name="Menu_Help_About" xml:space="preserve"><value>About edl-ng</value></data>
+  <data name="Menu_About_Title" xml:space="preserve"><value>About edl-ng</value></data>
+  <data name="Menu_About_Message" xml:space="preserve"><value>edl-ng — a cross-platform toolchain for Qualcomm Emergency Download mode, speaking Sahara and Firehose over USB.</value></data>
+  <data name="Menu_About_LinkText" xml:space="preserve"><value>github.com/strongtz/edl-ng</value></data>
+  <data name="About_LicenseLabel" xml:space="preserve"><value>LICENSE</value></data>
+  <data name="About_LicenseText" xml:space="preserve"><value>edl-ng is released under the MIT License.
+Copyright © 2025 Xilin Wu and contributors.</value></data>
+  <data name="About_DependenciesLabel" xml:space="preserve"><value>DEPENDENCIES</value></data>
+  <data name="About_DependenciesCaption" xml:space="preserve"><value>This build ships the following third-party components. Click a name to open its project page.</value></data>
+  <data name="About_ViewLicense" xml:space="preserve"><value>View full license…</value></data>
+  <data name="License_NotFoundFormat" xml:space="preserve"><value>License text for '{0}' is not bundled with this build.</value></data>
+  <data name="Menu_About_Ok" xml:space="preserve"><value>Close</value></data>
 </root>

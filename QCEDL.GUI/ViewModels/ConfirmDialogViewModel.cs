@@ -13,7 +13,10 @@ public sealed class ConfirmDialogViewModel : ViewModelBase
         string confirmLabel,
         string cancelLabel,
         bool danger,
-        string? requiredConfirmation)
+        string? requiredConfirmation,
+        string? linkText = null,
+        string? linkUrl = null,
+        bool showCancel = true)
     {
         Title = title;
         Message = message;
@@ -25,6 +28,10 @@ public sealed class ConfirmDialogViewModel : ViewModelBase
         TypeToConfirmPrompt = RequiresTyping
             ? Localizer.Instance.Format("Confirm_TypeToConfirmFormat", requiredConfirmation)
             : string.Empty;
+        LinkText = linkText;
+        LinkUrl = linkUrl;
+        HasLink = !string.IsNullOrWhiteSpace(linkText) && !string.IsNullOrWhiteSpace(linkUrl);
+        ShowCancel = showCancel;
     }
 
     public string Title { get; }
@@ -35,6 +42,10 @@ public sealed class ConfirmDialogViewModel : ViewModelBase
     public string? RequiredConfirmation { get; }
     public bool RequiresTyping { get; }
     public string TypeToConfirmPrompt { get; }
+    public string? LinkText { get; }
+    public string? LinkUrl { get; }
+    public bool HasLink { get; }
+    public bool ShowCancel { get; }
 
     public string TypedConfirmation
     {

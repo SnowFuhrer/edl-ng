@@ -77,6 +77,14 @@ The GUI is localized and runtime-switchable between English, Simplified Chinese,
 
 When adding a new user-facing string: add it to `Strings.resx` with an English value, then to each translated `.resx`, and reference it in XAML via `{l:Localize KeyName}` or in code via `Localizer.Instance["KeyName"]`. Don't hard-code user-visible literals in views.
 
+## GUI menus, About, and bundled licenses
+
+- `MainWindow.axaml` declares a `NativeMenu` (View / Device / Help) that renders as the macOS app menu and as an in-window menu bar on other platforms. `App.axaml` carries a parallel top-level NativeMenu so the About item is reachable before any window exists. Bind nav menu items via `ShellViewModel.NavigateCommand` (takes a `Nav_*` key) and jump-to-Advanced items via `GoAdvancedCommand`.
+- `QCEDL.GUI/Services/AppCommands.cs` exposes static `ICommand`s (`OpenDocs`, `ShowAbout`) used by NativeMenu entries that can't bind through the shell DataContext. Use these for any new menu item that needs to run without a view-model path (e.g. `Command="{x:Static svc:AppCommands.ShowAbout}"`).
+- `AboutDialog` + `LicenseViewerDialog` (`Views/AboutDialog.axaml`, `Views/LicenseViewerDialog.axaml`) show project info and per-dependency license viewers. The dependency list lives in `AboutDialogViewModel`; each entry's `LicenseKey` must match a file under `QCEDL.GUI/Assets/Licenses/<key>.txt`.
+- License texts are shipped as `AvaloniaResource` and loaded via `LicenseTexts.Load(key)` (`avares://qcedl-gui/Assets/Licenses/<key>.txt`). The project's own `LICENSE` is linked into that folder as `edl-ng.txt` from the csproj. To add a dependency, drop its license file under `Assets/Licenses/`, add a `DependencyInfo` row in `AboutDialogViewModel`, and leave the csproj alone — `Include="Assets\**"` picks it up.
+- `ConfirmDialog.ShowAsync` has optional `linkText`/`linkUrl`/`showCancel` parameters for info-style dialogs with a hyperlink and no Cancel button. Keep destructive-action uses on the default signature.
+
 ## GUI implementation tracker
 
 `gui-todos.md` at the repo root is a living tracker — CLI feature inventory, GUI screen mapping, per-capability status, and phased rollout. Update the Status column when finishing work on a capability; don't let it drift behind the code.

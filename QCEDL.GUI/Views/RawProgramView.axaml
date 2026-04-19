@@ -9,7 +9,6 @@
         <StackPanel Spacing="6">
             <TextBlock Classes="label" Text="{l:Localize Raw_Label}" />
             <TextBlock Classes="h1" Text="{l:Localize Raw_Heading}" />
-            <TextBlock Classes="h1" Text="{l:Localize Raw_Heading}" />
             <TextBlock Classes="body" Text="{l:Localize Raw_Body}" />
         </StackPanel>
 

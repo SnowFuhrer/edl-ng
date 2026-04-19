@@ -275,4 +275,24 @@
   <data name="Adv_ResetBadDelayFormat" xml:space="preserve"><value>延迟值无效:“{0}”,需要非负整数。</value></data>
 
   <data name="Adv_ErrorFormat" xml:space="preserve"><value>错误:{0}</value></data>
+
+  <data name="Menu_View" xml:space="preserve"><value>视图</value></data>
+  <data name="Menu_Device" xml:space="preserve"><value>设备</value></data>
+  <data name="Menu_Device_Provision" xml:space="preserve"><value>UFS 预配…</value></data>
+  <data name="Menu_Device_UploadLoader" xml:space="preserve"><value>上传 Loader</value></data>
+  <data name="Menu_Device_Reset" xml:space="preserve"><value>重置 / 电源…</value></data>
+  <data name="Menu_Help" xml:space="preserve"><value>帮助</value></data>
+  <data name="Menu_Help_Documentation" xml:space="preserve"><value>文档</value></data>
+  <data name="Menu_Help_About" xml:space="preserve"><value>关于 edl-ng</value></data>
+  <data name="Menu_About_Title" xml:space="preserve"><value>关于 edl-ng</value></data>
+  <data name="Menu_About_Message" xml:space="preserve"><value>edl-ng —— 跨平台的高通紧急下载(EDL)工具链,通过 USB 与 Sahara / Firehose 协议通信。</value></data>
+  <data name="Menu_About_LinkText" xml:space="preserve"><value>github.com/strongtz/edl-ng</value></data>
+  <data name="About_LicenseLabel" xml:space="preserve"><value>许可证</value></data>
+  <data name="About_LicenseText" xml:space="preserve"><value>edl-ng 以 MIT 许可证发布。
+版权所有 © 2025 Xilin Wu 以及贡献者。</value></data>
+  <data name="About_DependenciesLabel" xml:space="preserve"><value>依赖项</value></data>
+  <data name="About_DependenciesCaption" xml:space="preserve"><value>本版本包含以下第三方组件。点击名称可跳转到对应项目页。</value></data>
+  <data name="About_ViewLicense" xml:space="preserve"><value>查看完整许可证…</value></data>
+  <data name="License_NotFoundFormat" xml:space="preserve"><value>本版本未随附 '{0}' 的许可证文本。</value></data>
+  <data name="Menu_About_Ok" xml:space="preserve"><value>关闭</value></data>
 </root>

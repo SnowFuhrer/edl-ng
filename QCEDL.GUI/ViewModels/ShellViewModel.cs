@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Reactive;
 using QCEDL.GUI.Services;
 using ReactiveUI;
 
@@ -34,6 +35,30 @@ public sealed class ShellViewModel : ViewModelBase
             new NavigationItem("Nav_Settings", Settings),
         ];
         _selected = NavigationItems[0];
+
+        NavigateCommand = ReactiveCommand.Create<string>(key =>
+        {
+            foreach (var n in NavigationItems)
+            {
+                if (n.TitleKey == key)
+                {
+                    Selected = n;
+                    return;
+                }
+            }
+        });
+
+        GoAdvancedCommand = ReactiveCommand.Create(() =>
+        {
+            foreach (var n in NavigationItems)
+            {
+                if (n.Content == Advanced)
+                {
+                    Selected = n;
+                    return;
+                }
+            }
+        });
     }
 
     public ObservableCollection<NavigationItem> NavigationItems { get; }
@@ -43,6 +68,9 @@ public sealed class ShellViewModel : ViewModelBase
         get => _selected;
         set => this.RaiseAndSetIfChanged(ref _selected, value);
     }
+
+    public ReactiveCommand<string, Unit> NavigateCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoAdvancedCommand { get; }
 
     public OverviewViewModel Overview { get; }
     public ConnectionViewModel Connection { get; }
