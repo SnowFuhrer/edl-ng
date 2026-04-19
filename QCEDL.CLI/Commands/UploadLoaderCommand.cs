@@ -18,7 +18,7 @@ internal sealed class UploadLoaderCommand
         return command;
     }
 
-    private static async Task<int> ExecuteAsync(GlobalOptionsBinder globalOptions)
+    private static async Task<int> ExecuteAsync(EdlOptions globalOptions)
     {
         Logging.Log("Executing 'upload-loader' command...", LogLevel.Trace);
 

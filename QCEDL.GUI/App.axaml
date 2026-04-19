@@ -1,0 +1,10 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="QCEDL.GUI.App"
+             RequestedThemeVariant="Light">
+    <Application.Styles>
+        <StyleInclude Source="avares://qcedl-gui/Themes/Tokens.axaml" />
+        <StyleInclude Source="avares://qcedl-gui/Themes/Controls.axaml" />
+        <StyleInclude Source="avares://qcedl-gui/Themes/Styles.axaml" />
+    </Application.Styles>
+</Application>

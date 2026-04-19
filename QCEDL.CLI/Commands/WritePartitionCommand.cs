@@ -39,7 +39,7 @@ internal sealed class WritePartitionCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         string partitionName,
         FileInfo inputFile,
         uint? specifiedLun)

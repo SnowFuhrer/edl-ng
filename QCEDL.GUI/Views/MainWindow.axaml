@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
+        xmlns:v="clr-namespace:QCEDL.GUI.Views"
+        x:Class="QCEDL.GUI.Views.MainWindow"
+        x:DataType="vm:ShellViewModel"
+        Title="edl-ng — Qualcomm EDL"
+        Width="1180" Height="760"
+        MinWidth="920" MinHeight="560">
+    <Grid ColumnDefinitions="240,*">
+
+        <!-- Left rail -->
+        <Border Grid.Column="0" Classes="nav">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top" Margin="20,24,20,16" Spacing="2">
+                    <TextBlock Classes="h2" Text="edl-ng" />
+                    <TextBlock Classes="caption" Text="Qualcomm Emergency Download" />
+                </StackPanel>
+                <Separator DockPanel.Dock="Top" Margin="16,0,16,8" />
+                <ListBox
+                    Name="NavList"
+                    ItemsSource="{Binding NavigationItems}"
+                    SelectedItem="{Binding Selected}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="8,0">
+                    <ListBox.Styles>
+                        <Style Selector="ListBox#NavList > ListBoxItem">
+                            <Setter Property="Margin" Value="0,1" />
+                            <Setter Property="Padding" Value="14,10" />
+                        </Style>
+                    </ListBox.Styles>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="vm:NavigationItem">
+                            <TextBlock Text="{Binding Title}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Main pane -->
+        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ContentControl Content="{Binding Selected.Content}" Margin="36,28">
+                <ContentControl.DataTemplates>
+                    <DataTemplate DataType="vm:OverviewViewModel">
+                        <v:OverviewView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:ConnectionViewModel">
+                        <v:ConnectionView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:PartitionsViewModel">
+                        <v:PartitionsView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:LogsViewModel">
+                        <v:LogsView />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:PlaceholderViewModel">
+                        <v:PlaceholderView />
+                    </DataTemplate>
+                </ContentControl.DataTemplates>
+            </ContentControl>
+        </ScrollViewer>
+    </Grid>
+</Window>

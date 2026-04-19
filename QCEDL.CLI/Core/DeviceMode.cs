@@ -1,6 +1,6 @@
 namespace QCEDL.CLI.Core;
 
-internal enum DeviceMode
+public enum DeviceMode
 {
     Unknown,
     Sahara,

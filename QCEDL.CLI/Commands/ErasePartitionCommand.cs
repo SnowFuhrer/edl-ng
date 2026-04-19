@@ -29,7 +29,7 @@ internal sealed class ErasePartitionCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         string partitionName,
         uint? specifiedLun)
     {

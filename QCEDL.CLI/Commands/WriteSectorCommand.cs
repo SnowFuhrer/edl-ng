@@ -40,7 +40,7 @@ internal sealed class WriteSectorCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         ulong startSector,
         FileInfo inputFile,
         uint lun)

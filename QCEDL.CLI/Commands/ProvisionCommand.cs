@@ -24,7 +24,7 @@ internal sealed class ProvisionCommand
         return command;
     }
 
-    private static async Task<int> ExecuteAsync(GlobalOptionsBinder globalOptions, FileInfo xmlFile)
+    private static async Task<int> ExecuteAsync(EdlOptions globalOptions, FileInfo xmlFile)
     {
         Logging.Log($"Executing 'provision' command with XML file: {xmlFile.FullName}", LogLevel.Trace);
 

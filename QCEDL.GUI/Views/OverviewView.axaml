@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
+             x:Class="QCEDL.GUI.Views.OverviewView"
+             x:DataType="vm:OverviewViewModel">
+    <StackPanel Spacing="28" MaxWidth="880">
+        <StackPanel Spacing="10">
+            <TextBlock Classes="label" Text="OVERVIEW" />
+            <TextBlock Classes="display" Text="A careful way to talk to devices." />
+            <TextBlock Classes="bodyLarge" Text="{Binding TagLine}" />
+        </StackPanel>
+
+        <Border Classes="card elevated">
+            <StackPanel Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Classes="h3" Text="Connection" VerticalAlignment="Center" />
+                    <Border Classes="chip" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Connection.ModeText}" />
+                    </Border>
+                </StackPanel>
+                <TextBlock Classes="body" Text="{Binding ConnectionSummary}" />
+                <TextBlock Classes="caption" Text="Head to Connection to configure the target and establish a session. Destructive actions (write / erase / reset) will always ask for confirmation first." />
+            </StackPanel>
+        </Border>
+
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
+            <Border Grid.Column="0" Classes="card">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="feature" Text="Partitions" />
+                    <TextBlock Classes="body" Text="Inspect the GPT, read or write named partitions, and export a rawprogram manifest." />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="feature" Text="RawProgram" />
+                    <TextBlock Classes="body" Text="Run rawprogramN.xml + patchN.xml flashing flows, or dump the current device to a rawprogram set." />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </StackPanel>
+</UserControl>

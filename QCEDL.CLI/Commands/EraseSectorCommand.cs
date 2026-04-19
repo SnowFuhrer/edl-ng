@@ -34,7 +34,7 @@ internal sealed class EraseSectorCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         ulong startSectorUlong,
         ulong sectorsToEraseUlong,
         uint lun)

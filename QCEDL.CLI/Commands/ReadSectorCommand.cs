@@ -53,7 +53,7 @@ internal sealed class ReadSectorCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         ulong startSector,
         ulong sectorsToRead,
         FileInfo outputFile,
@@ -65,7 +65,7 @@ internal sealed class ReadSectorCommand
     }
 
     private static async Task<int> ExecuteReadLunAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         FileInfo outputFile,
         uint lun)
     {
@@ -76,7 +76,7 @@ internal sealed class ReadSectorCommand
     }
 
     private static async Task<int> ExecuteReadSectorsAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         ulong startSector,
         ulong sectorsToRead,
         FileInfo outputFile,

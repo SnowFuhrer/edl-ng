@@ -48,7 +48,7 @@ internal sealed class DumpRawprogramCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         DirectoryInfo dumpSaveDir,
         uint lun,
         bool genXmlOnly,

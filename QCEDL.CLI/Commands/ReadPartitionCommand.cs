@@ -33,7 +33,7 @@ internal sealed class ReadPartitionCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         string partitionName,
         FileInfo outputFile,
         uint? specifiedLun)

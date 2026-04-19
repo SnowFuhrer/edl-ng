@@ -26,7 +26,7 @@ internal sealed class RawProgramCommand
         return command;
     }
 
-    private static async Task<int> ExecuteAsync(GlobalOptionsBinder globalOptions, string[] xmlFilePatterns)
+    private static async Task<int> ExecuteAsync(EdlOptions globalOptions, string[] xmlFilePatterns)
     {
         Logging.Log("Executing 'rawprogram' command...", LogLevel.Trace);
 
@@ -335,7 +335,7 @@ internal sealed class RawProgramCommand
             var totalSectors = paddedBytes / sectorSize;
 
             var targetDescription = manager.IsDirectMode
-                ? (manager.IsHostDeviceMode ? "host device" : "Radxa WoS platform")
+                ? manager.IsHostDeviceMode ? "host device" : "Radxa WoS platform"
                 : $"LUN {targetLun}";
             Logging.Log($"Programming '{filename}' (Label: {label}) to {targetDescription}, StartSector {resolvedStartSector}, SectorSize {sectorSize}. Total to stream: {paddedBytes} bytes.", LogLevel.Debug);
 

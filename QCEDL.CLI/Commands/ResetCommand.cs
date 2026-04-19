@@ -38,7 +38,7 @@ internal sealed class ResetCommand
     }
 
     private static async Task<int> ExecuteAsync(
-        GlobalOptionsBinder globalOptions,
+        EdlOptions globalOptions,
         PowerValue powerMode,
         uint delayInSeconds)
     {

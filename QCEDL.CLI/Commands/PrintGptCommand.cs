@@ -21,7 +21,7 @@ internal sealed class PrintGptCommand
         return command;
     }
 
-    private static async Task<int> ExecuteAsync(GlobalOptionsBinder globalOptions, uint? lun)
+    private static async Task<int> ExecuteAsync(EdlOptions globalOptions, uint? lun)
     {
         Logging.Log("Executing 'printgpt' command...", LogLevel.Trace);
 

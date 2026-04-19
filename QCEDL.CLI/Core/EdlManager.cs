@@ -16,7 +16,7 @@ using Qualcomm.EmergencyDownload.Transport;
 
 namespace QCEDL.CLI.Core;
 
-internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposable
+public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
 {
     private string? _devicePath;
     private Guid? _deviceGuid;
@@ -24,6 +24,9 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
     private QualcommSahara? _saharaClient;
     private QualcommFirehose? _firehoseClient;
     internal IStorageBackend? XstorageBackend;
+
+    /// <summary>The options this manager was initialised with.</summary>
+    public EdlOptions Options => globalOptions;
     private bool _firehoseConfigured;
     private bool _disposed;
 
@@ -58,7 +61,7 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
     private HostDeviceManager? _hostDeviceManager;
     private RadxaWoSDeviceManager? _radxaWoSManager;
 
-    private GlobalOptionsBinder GlobalOptions => globalOptions;
+    private EdlOptions GlobalOptions => globalOptions;
 
     private void EnsureValidDirectMode()
     {
@@ -68,7 +71,7 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
         }
     }
 
-    public HostDeviceManager GetHostDeviceManager()
+    internal HostDeviceManager GetHostDeviceManager()
     {
         EnsureValidDirectMode();
 
@@ -115,6 +118,15 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
     public async Task<StorageGeometry> GetStorageGeometryAsync(uint lun)
     {
         return await StorageBackend.GetGeometryAsync(lun);
+    }
+
+    /// <summary>
+    /// Returns the LUN set to scan given an optional caller-specified LUN. For direct-mode
+    /// backends this is always <c>[0]</c>; for Firehose it queries the device.
+    /// </summary>
+    public Task<List<uint>> DetermineLunsToScanAsync(uint? specifiedLun)
+    {
+        return StorageBackend.DetermineLunsToScanAsync(specifiedLun);
     }
 
     public async Task ReadSectorsToStreamAsync(uint lun, ulong startSector, ulong sectorCount, Stream destination, Action<long, long>? progressCallback = null)
@@ -402,35 +414,65 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
     private bool FindDevice()
     {
         Logging.Log("Searching for Qualcomm EDL device...", LogLevel.Trace);
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        var isMac = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+        if (!isWindows && !isLinux && !isMac)
         {
-            if (FindDeviceLinuxLibUsb())
-            {
-                Logging.Log("Found device using LibUsbDotNet on Linux / MacOS.");
-                return true;
-            }
-            // Fallback to Serial Port on Linux
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Logging.Log("LibUsbDotNet device detection failed or no device found. Falling back to Serial Port (ttyUSB/ttyACM) detection on Linux...", LogLevel.Warning);
-                Logging.Log("Serial Port is known to be broken on Linux. Please double check why LibUsb is not working if device detection succeeds with Serial Port.", LogLevel.Error);
-                return FindDeviceLinuxSerial();
-            }
+            Logging.Log($"Unsupported OS: {RuntimeInformation.OSDescription}. Device discovery skipped.", LogLevel.Error);
             return false;
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        var backend = ResolveBackend(globalOptions.Backend, isWindows);
+        Logging.Log($"Transport backend: {backend} (requested: {globalOptions.Backend})", LogLevel.Debug);
+
+        if (backend == TransportBackend.Serial)
         {
-            return FindDeviceWindows();
+            if (!string.IsNullOrWhiteSpace(globalOptions.SerialDevicePath))
+            {
+                _devicePath = globalOptions.SerialDevicePath;
+                _deviceGuid = ComPortGuid;
+                Logging.Log($"Using explicit serial device path: {_devicePath}");
+                return true;
+            }
+
+            if (isLinux)
+            {
+                return FindDeviceLinuxSerial();
+            }
+
+            if (isWindows)
+            {
+                return FindDeviceWindowsSerial();
+            }
+
+            Logging.Log("Serial backend on macOS requires an explicit device path.", LogLevel.Error);
+            return false;
         }
 
-        Logging.Log($"Unsupported OS: {RuntimeInformation.OSDescription}. Device discovery skipped.", LogLevel.Error);
+        // LibUsb backend (cross-platform via LibUsbDotNet).
+        if (FindDeviceViaLibUsb())
+        {
+            Logging.Log("Found device using LibUsbDotNet.");
+            return true;
+        }
+
+        Logging.Log("LibUsb backend selected but no device found.", LogLevel.Error);
         return false;
     }
 
-    private bool FindDeviceLinuxLibUsb()
+    private static TransportBackend ResolveBackend(TransportBackend requested, bool isWindows)
     {
-        Logging.Log("Trying to find device using LibUsbDotNet on Linux / MacOS...", LogLevel.Debug);
+        return requested != TransportBackend.Auto
+            ? requested
+            : isWindows ? TransportBackend.LibUsb : TransportBackend.Serial;
+    }
+
+    private bool FindDeviceViaLibUsb()
+    {
+        Logging.Log("Trying to find device using LibUsbDotNet...", LogLevel.Debug);
         if (QualcommSerial.LibUsbContext == null)
         {
             Logging.Log("LibUsbDotNet context not initialized. Cannot use LibUsb backend.", LogLevel.Warning);
@@ -583,76 +625,49 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
         return true;
     }
 
-    private bool FindDeviceWindows()
+    private bool FindDeviceWindowsSerial()
     {
-        Logging.Log("Searching for Qualcomm EDL device on Windows (Qualcomm Serial Driver or WinUSB)...");
+        Logging.Log("Searching for Qualcomm EDL device on Windows (Qualcomm Serial Driver / COM port)...");
 
-        // Store DevInst and the interface GUID it was found with
-        var potentialDevices = new List<(string DevicePath, string BusName, Guid InterfaceGuid, int DevInst)>();
-        // Search by COMPortGuid
+        var potentialDevices = new List<(string DevicePath, string BusName, int DevInst)>();
         foreach (var (pathName, busName, devInst) in UsbExtensions.GetDeviceInfos(ComPortGuid))
         {
             Logging.Log($"Found device via COMPortGuid: {pathName} on bus {busName} (DevInst: {devInst})", LogLevel.Debug);
             if (pathName is not null && IsQualcommEdlDevice(pathName, busName))
             {
-                potentialDevices.Add((pathName, busName, ComPortGuid, devInst));
+                potentialDevices.Add((pathName, busName, devInst));
             }
         }
-        // Search by WinUSBGuid
-        foreach (var (pathName, busName, devInst) in UsbExtensions.GetDeviceInfos(WinUsbGuid))
-        {
-            Logging.Log($"Found device via WinUSBGuid: {pathName} on bus {busName} (DevInst: {devInst})", LogLevel.Debug);
-            if (pathName is not null && IsQualcommEdlDevice(pathName, busName))
-            {
-                potentialDevices.Add((pathName, busName, WinUsbGuid, devInst));
-            }
-        }
-        // De-duplicate based on DevInst
+
         var uniqueEdlDevices = potentialDevices
-            .GroupBy(d => d.DevInst) // Group by physical device instance
-            .Select(g =>
-            {
-                // For each physical device, if it was found via COMPortGuid, prefer that.
-                // Otherwise, take the first one found (which would be WinUSBGuid if COMPort wasn't a match,
-                // or if it was only found via WinUSB).
-                var preferredDevice = g.FirstOrDefault(item => item.InterfaceGuid == ComPortGuid);
-                if (preferredDevice.DevicePath != null)
-                {
-                    Logging.Log($"Selecting device (DevInst: {preferredDevice.DevInst}) via COMPortGuid: {preferredDevice.DevicePath}", LogLevel.Debug);
-                    return preferredDevice;
-                }
-                var fallbackDevice = g.First();
-                Logging.Log($"Selecting device (DevInst: {fallbackDevice.DevInst}) via {(fallbackDevice.InterfaceGuid == WinUsbGuid ? "WinUSBGuid" : "OtherGuid")}: {fallbackDevice.DevicePath}", LogLevel.Debug);
-                return fallbackDevice;
-            })
+            .GroupBy(d => d.DevInst)
+            .Select(g => g.First())
             .ToList();
+
         if (uniqueEdlDevices.Count == 0)
         {
-            Logging.Log("No Qualcomm EDL devices found.", LogLevel.Error);
+            Logging.Log("No Qualcomm EDL serial devices found. If the device is bound to WinUSB, select the LibUsb backend instead.", LogLevel.Error);
             return false;
         }
 
         if (uniqueEdlDevices.Count > 1)
         {
-            Logging.Log($"Multiple ({uniqueEdlDevices.Count}) unique EDL devices found. Please specify which device to use.", LogLevel.Error);
-            foreach (var (devicePath, busName, interfaceGuid, _) in uniqueEdlDevices)
+            Logging.Log($"Multiple ({uniqueEdlDevices.Count}) unique EDL serial devices found.", LogLevel.Warning);
+            foreach (var (devicePath, busName, _) in uniqueEdlDevices)
             {
-                Logging.Log($"  - Path: {devicePath}, Bus: {busName}, Interface: {(interfaceGuid == ComPortGuid ? "COM Port" : "WinUSB")}", LogLevel.Error);
+                Logging.Log($"  - Path: {devicePath}, Bus: {busName}", LogLevel.Warning);
             }
-            // For simplicity, pick the first one if multiple is found, or require user to specify.
-            // return false; // Or handle selection
             Logging.Log($"Picking the first device: {uniqueEdlDevices[0].DevicePath}", LogLevel.Warning);
         }
 
-        var (finalDevicePath, finalBusName, finalInterfaceGuid, finalDevInst) = uniqueEdlDevices.First();
-        Logging.Log($"Qualcomm EDL device selected: {finalDevicePath} on bus {finalBusName} (Interface: {(finalInterfaceGuid == ComPortGuid ? "COM Port" : "WinUSB")}, DevInst: {finalDevInst})", LogLevel.Debug);
-
+        var (finalDevicePath, finalBusName, finalDevInst) = uniqueEdlDevices.First();
         _devicePath = finalDevicePath;
-        _deviceGuid = finalInterfaceGuid;
+        _deviceGuid = ComPortGuid;
 
         Logging.Log($"Found device: {_devicePath}");
-        Logging.Log($"  Interface: {(_deviceGuid == ComPortGuid ? "Serial Port" : "libusb via WinUSB")}");
+        Logging.Log("  Interface: Serial Port");
         Logging.Log($"  Bus Name: {finalBusName}", LogLevel.Debug);
+        Logging.Log($"  DevInst: {finalDevInst}", LogLevel.Debug);
 
         if (finalBusName?.StartsWith("QUSB_BULK", StringComparison.OrdinalIgnoreCase) == true ||
             finalBusName == "QHSUSB_DLOAD" ||
@@ -663,7 +678,6 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
         else if (finalBusName == "QHSUSB_ARMPRG")
         {
             Logging.Log("  Mode detected: Emergency Flash (9006/other)", LogLevel.Warning);
-            // Not yet implemented
         }
         else
         {

@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
+             xmlns:svc="clr-namespace:QCEDL.GUI.Services"
+             x:Class="QCEDL.GUI.Views.PartitionsView"
+             x:DataType="vm:PartitionsViewModel">
+    <StackPanel Spacing="20">
+        <StackPanel Spacing="6">
+            <TextBlock Classes="label" Text="PARTITIONS" />
+            <TextBlock Classes="h1" Text="GPT Inspector" />
+            <TextBlock Classes="body" Text="Scan every LUN the device reports (or a specific one) and read the GUID Partition Table." />
+        </StackPanel>
+
+        <Border Classes="card">
+            <StackPanel Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Classes="body" Text="LUN" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding LunFilter}" PlaceholderText="all" Width="100" />
+                    <Button Classes="primary" Content="Scan" Command="{Binding ScanCommand}" />
+                    <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Width="140" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Classes="caption" Text="{Binding StatusText}" />
+            </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+            <DockPanel LastChildFill="True">
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="60,60,*,140,140,140" Margin="0,0,0,8">
+                    <TextBlock Grid.Column="0" Classes="label" Text="LUN" />
+                    <TextBlock Grid.Column="1" Classes="label" Text="#" />
+                    <TextBlock Grid.Column="2" Classes="label" Text="NAME" />
+                    <TextBlock Grid.Column="3" Classes="label" Text="FIRST LBA" />
+                    <TextBlock Grid.Column="4" Classes="label" Text="LAST LBA" />
+                    <TextBlock Grid.Column="5" Classes="label" Text="SIZE" />
+                </Grid>
+                <Separator DockPanel.Dock="Top" />
+                <ItemsControl ItemsSource="{Binding Partitions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="svc:PartitionRow">
+                            <Grid ColumnDefinitions="60,60,*,140,140,140" Margin="0,6">
+                                <TextBlock Grid.Column="0" Classes="mono" Text="{Binding Lun}" />
+                                <TextBlock Grid.Column="1" Classes="mono" Text="{Binding Index}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Name}" />
+                                <TextBlock Grid.Column="3" Classes="mono" Text="{Binding FirstLba}" />
+                                <TextBlock Grid.Column="4" Classes="mono" Text="{Binding LastLba}" />
+                                <TextBlock Grid.Column="5" Text="{Binding SizeText}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DockPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
