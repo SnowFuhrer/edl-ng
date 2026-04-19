@@ -14,6 +14,7 @@ using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 using Qualcomm.EmergencyDownload.Layers.PBL.Sahara;
 using Qualcomm.EmergencyDownload.Transport;
+using Qualcomm.EmergencyDownload.Transport.Elevation;
 
 namespace Qualcomm.EmergencyDownload.Core;
 
@@ -63,6 +64,17 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
     private RadxaWoSDeviceManager? _radxaWoSManager;
 
     private EdlOptions GlobalOptions => globalOptions;
+
+    /// <summary>
+    /// Returns the device path we should pass to <see cref="QualcommSerial"/>, transparently
+    /// routing through the privileged helper on platforms where <see cref="ElevationPolicy"/>
+    /// requires it (macOS). Direct-mode callers never get here.
+    /// </summary>
+    private string ResolveTransportPath()
+    {
+        var raw = _devicePath ?? throw new InvalidOperationException("Device path not resolved yet.");
+        return ElevationPolicy.RequiresHelper() ? HelperDeviceScheme.Wrap(raw) : raw;
+    }
 
     private void EnsureValidDirectMode()
     {
@@ -220,7 +232,7 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
 
         try
         {
-            probeSerial = new(_devicePath!);
+            probeSerial = new(ResolveTransportPath());
             probeSerial.SetTimeOut(500); // Short timeout for initial read attempt
             // --- Probe 1: Passive Read ---
             Logging.Log("Attempting passive read...", LogLevel.Debug);
@@ -1024,7 +1036,7 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
             case DeviceMode.Firehose:
                 Logging.Log("Device is in Firehose mode. Establishing connection...", LogLevel.Debug);
                 _serialPort?.Dispose();
-                _serialPort = new(_devicePath!);
+                _serialPort = new(ResolveTransportPath());
                 _firehoseClient = new(_serialPort);
                 _firehoseConfigured = false;
                 CurrentMode = DeviceMode.Firehose;
@@ -1047,7 +1059,7 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
                 }
                 // Now establish the Firehose connection
                 Logging.Log("Connecting to re-enumerated device in Firehose mode...", LogLevel.Debug);
-                _serialPort = new(_devicePath!);
+                _serialPort = new(ResolveTransportPath());
                 _firehoseClient = new(_serialPort);
 
                 FlushForResponse();
@@ -1121,7 +1133,7 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
             }
 
             _serialPort?.Dispose();
-            _serialPort = new(_devicePath!);
+            _serialPort = new(ResolveTransportPath());
             _saharaClient = new(_serialPort);
             _initialSaharaHelloPacket = null;
         }

@@ -7,6 +7,7 @@ using QCEDL.GUI.Services;
 using Qualcomm.EmergencyDownload.Core;
 using Qualcomm.EmergencyDownload.Helpers;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
+using Qualcomm.EmergencyDownload.Transport.Elevation;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -148,9 +149,15 @@ public sealed partial class ConnectionViewModel : ViewModelBase
 
         // Localized wording for the two hot paths: keep the explicit hook so the Conn_* keys drive the message.
         ConnectCommand.ThrownExceptions.Subscribe(ex =>
-            Logging.Log(Localizer.Instance.Format("Conn_ConnectFailedFormat", ex.Message), LogLevel.Error));
+        {
+            Logging.Log(Localizer.Instance.Format("Conn_ConnectFailedFormat", ex.Message), LogLevel.Error);
+            LogElevationHintFor(ex);
+        });
         ProbeCommand.ThrownExceptions.Subscribe(ex =>
-            Logging.Log(Localizer.Instance.Format("Conn_ProbeFailedFormat", ex.Message), LogLevel.Error));
+        {
+            Logging.Log(Localizer.Instance.Format("Conn_ProbeFailedFormat", ex.Message), LogLevel.Error);
+            LogElevationHintFor(ex);
+        });
 
         LogCommandErrors();
     }
@@ -285,6 +292,10 @@ public sealed partial class ConnectionViewModel : ViewModelBase
             }
 
             Logging.Log(Localizer.Instance["Conn_LogConnecting"], LogLevel.Info);
+            if (ElevationPolicy.RequiresHelper())
+            {
+                Logging.Log(Localizer.Instance["Conn_LogElevationMacOs"], LogLevel.Info);
+            }
             await _service.EnsureFirehoseAsync();
             ModeLiteral = _service.CurrentMode.ToString();
             StatusKey = "Conn_StatusFirehoseConnected";
@@ -436,5 +447,26 @@ public sealed partial class ConnectionViewModel : ViewModelBase
         }
         var trimmed = s.Trim().Replace("0x", string.Empty, StringComparison.OrdinalIgnoreCase);
         return int.TryParse(trimmed, System.Globalization.NumberStyles.HexNumber, null, out var v) ? v : null;
+    }
+
+    /// <summary>
+    /// When a connect/probe failure looks like a permission problem on Linux, point the
+    /// user at the shipped udev rule. On other platforms the helper already handles macOS
+    /// and Windows needs no elevation hint.
+    /// </summary>
+    private static void LogElevationHintFor(Exception ex)
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return;
+        }
+        var message = ex.Message ?? string.Empty;
+        if (ex is UnauthorizedAccessException ||
+            message.Contains("Permission denied", StringComparison.OrdinalIgnoreCase) ||
+            (message.Contains("Access", StringComparison.OrdinalIgnoreCase) && message.Contains("denied", StringComparison.OrdinalIgnoreCase)) ||
+            message.Contains("LIBUSB_ERROR_ACCESS", StringComparison.OrdinalIgnoreCase))
+        {
+            Logging.Log(Localizer.Instance["Conn_LogElevationLinuxHint"], LogLevel.Warning);
+        }
     }
 }

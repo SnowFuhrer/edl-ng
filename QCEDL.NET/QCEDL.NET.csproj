@@ -2,6 +2,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="edl-ng" />
     <InternalsVisibleTo Include="qcedl-gui" />
+    <InternalsVisibleTo Include="edl-ng-helper" />
   </ItemGroup>
   <ItemGroup>
 	<PackageReference Include="LibUsbDotNet" Version="3.0.167-alpha" />

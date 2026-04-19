@@ -50,6 +50,12 @@ Built with .NET 9, `edl-ng` ships two front-ends — a `System.CommandLine` CLI 
 
 Launch the GUI and use the left-side nav to step through Connection → Partitions / Sectors / RawProgram / Advanced. Destructive actions (write, erase, provision, rawprogram flash) require typed confirmation. Settings (language, theme, log level, last-used loader / VID / PID / memory / backend) persist across launches.
 
+#### Platform notes
+
+- **Linux** — the GUI opens the device without `sudo` once the shipped udev rule is active. Nix consumers get it via `services.udev.packages`; manual installs: see [docs/linux-udev.md](docs/linux-udev.md).
+- **macOS** — IOKit and `/dev/cu.*` refuse unprivileged access, so the GUI spawns a small `edl-ng-helper` process under `osascript`'s "administrator privileges" prompt. Expect one Touch ID / admin-password prompt per session; the helper binary ships alongside the GUI.
+- **Windows** — no elevation required; devices are opened through the regular COM / WinUSB APIs.
+
 ### CLI (`edl-ng`)
 
 The general command structure is:
