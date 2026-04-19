@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
-using QCEDL.CLI.Helpers;
+using Qualcomm.EmergencyDownload.Helpers;
 
 namespace QCEDL.GUI.Services;
 

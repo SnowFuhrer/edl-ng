@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace QCEDL.CLI.Helpers;
+namespace Qualcomm.EmergencyDownload.Helpers;
 
 internal sealed class ProgressReporter(Stopwatch stopwatch, string prefix)
 {

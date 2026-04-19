@@ -3,7 +3,7 @@
              xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
              xmlns:l="clr-namespace:QCEDL.GUI.Markup"
              xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
-             xmlns:helpers="clr-namespace:QCEDL.CLI.Helpers;assembly=edl-ng"
+             xmlns:helpers="clr-namespace:Qualcomm.EmergencyDownload.Helpers;assembly=QCEDL.NET"
              x:Class="QCEDL.GUI.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
     <StackPanel Spacing="20" MaxWidth="1040">

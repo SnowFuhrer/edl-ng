@@ -1,8 +1,8 @@
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
-using QCEDL.CLI.Core;
-using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
+using Qualcomm.EmergencyDownload.Core;
+using Qualcomm.EmergencyDownload.Helpers;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -13,6 +13,7 @@ public sealed partial class ConnectionViewModel : ViewModelBase
 {
     private readonly EdlService _service;
     private readonly IObservable<bool> _canRun;
+    private readonly IObservable<bool> _canDisconnect;
 
     [Reactive] private string? _loaderPath;
     [Reactive] private string _vidHex;
@@ -35,6 +36,7 @@ public sealed partial class ConnectionViewModel : ViewModelBase
     {
         _service = service;
         _canRun = this.WhenAnyValue(x => x.IsBusy).Select(b => !b);
+        _canDisconnect = _canRun.CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
 
         MemoryTypes = Enum.GetValues<StorageType>();
         Backends = Enum.GetValues<TransportBackend>();
@@ -178,7 +180,7 @@ public sealed partial class ConnectionViewModel : ViewModelBase
         finally { IsBusy = false; }
     }
 
-    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    [ReactiveCommand(CanExecute = nameof(_canDisconnect))]
     private void Disconnect()
     {
         _service.ResetSession();

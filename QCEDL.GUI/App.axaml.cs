@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
 using QCEDL.GUI.ViewModels;
 using QCEDL.GUI.Views;
+using Qualcomm.EmergencyDownload.Helpers;
 
 namespace QCEDL.GUI;
 

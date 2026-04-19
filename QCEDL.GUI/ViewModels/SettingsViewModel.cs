@@ -1,6 +1,6 @@
 using System.Globalization;
-using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
+using Qualcomm.EmergencyDownload.Helpers;
 using ReactiveUI;
 
 namespace QCEDL.GUI.ViewModels;

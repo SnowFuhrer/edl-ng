@@ -1,7 +1,7 @@
-using QCEDL.CLI.Helpers;
+using Qualcomm.EmergencyDownload.Helpers;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 public enum TransportBackend
 {

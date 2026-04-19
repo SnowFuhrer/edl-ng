@@ -1,9 +1,9 @@
 using System.Buffers;
 using System.Globalization;
-using QCEDL.CLI.Helpers;
 using QCEDL.NET.PartitionTable;
+using Qualcomm.EmergencyDownload.Helpers;
 
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 internal abstract class BlockDeviceManagerBase : IDisposable
 {

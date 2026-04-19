@@ -1,9 +1,10 @@
 using System.CommandLine;
 using System.CommandLine.Binding;
-using QCEDL.CLI.Helpers;
 using QCEDL.NET.Logging;
+using Qualcomm.EmergencyDownload.Core;
+using Qualcomm.EmergencyDownload.Helpers;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
-using LogLevel = QCEDL.CLI.Helpers.LogLevel;
+using LogLevel = Qualcomm.EmergencyDownload.Helpers.LogLevel;
 
 namespace QCEDL.CLI.Core;
 

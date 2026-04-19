@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reactive.Linq;
 using Avalonia.Threading;
-using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
 using QCEDL.NET.PartitionTable;
+using Qualcomm.EmergencyDownload.Helpers;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -32,7 +32,8 @@ public sealed partial class PartitionsViewModel : ViewModelBase
     public PartitionsViewModel(EdlService service)
     {
         _service = service;
-        _canRun = this.WhenAnyValue(x => x.CanInteract);
+        _canRun = this.WhenAnyValue(x => x.CanInteract)
+            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
 
         ScanCommand.ThrownExceptions.Subscribe(ex =>
             Logging.Log(Localizer.Instance.Format("Parts_LogScanFailedFormat", ex.Message), LogLevel.Error));

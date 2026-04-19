@@ -1,5 +1,5 @@
 using System.Reflection;
-using QCEDL.CLI.Helpers;
+using Qualcomm.EmergencyDownload.Helpers;
 using ReactiveUI;
 
 namespace QCEDL.GUI.ViewModels;

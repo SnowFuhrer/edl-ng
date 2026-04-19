@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Reactive.Linq;
-using QCEDL.CLI.Core;
-using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
+using Qualcomm.EmergencyDownload.Core;
+using Qualcomm.EmergencyDownload.Helpers;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 using ReactiveUI;
@@ -31,7 +31,8 @@ public sealed partial class AdvancedViewModel : ViewModelBase
     {
         _service = service;
         ResetModes = Enum.GetValues<PowerValue>();
-        _canRun = this.WhenAnyValue(x => x.CanInteract);
+        _canRun = this.WhenAnyValue(x => x.CanInteract)
+            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
 
         LogCommandErrors();
     }

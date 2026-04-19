@@ -1,4 +1,4 @@
-namespace QCEDL.CLI.Helpers;
+namespace Qualcomm.EmergencyDownload.Helpers;
 
 public enum LogLevel
 {

@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml.Linq;
-using QCEDL.CLI.Helpers;
 using QCEDL.NET.PartitionTable;
+using Qualcomm.EmergencyDownload.Helpers;
 
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 /// <summary>
 /// Shared orchestration for the <c>dump-rawprogram</c> flow. Reads the GPT of a LUN,

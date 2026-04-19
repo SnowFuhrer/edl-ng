@@ -1,4 +1,4 @@
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 /// <summary>
 /// Represents basic storage geometry information exposed by different backends.

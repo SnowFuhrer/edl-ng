@@ -1,5 +1,6 @@
-using QCEDL.CLI.Core;
+using System.Reactive.Linq;
 using QCEDL.NET.PartitionTable;
+using Qualcomm.EmergencyDownload.Core;
 
 namespace QCEDL.GUI.Services;
 
@@ -18,6 +19,16 @@ public sealed class EdlService : IDisposable
     public bool IsConnected => _manager?.IsFirehoseMode == true || _manager?.IsDirectMode == true;
 
     public DeviceMode CurrentMode => _manager?.CurrentMode ?? DeviceMode.Unknown;
+
+    /// <summary>Fires whenever session state may have changed (post-op or after reset).</summary>
+    public event EventHandler? StateChanged;
+
+    /// <summary>Observable stream of <see cref="IsConnected"/>, seeded with the current value.</summary>
+    public IObservable<bool> WhenConnectedChanged =>
+        Observable.FromEventPattern(h => StateChanged += h, h => StateChanged -= h)
+            .Select(_ => IsConnected)
+            .StartWith(IsConnected)
+            .DistinctUntilChanged();
 
     /// <summary>Prepare a manager from the current <see cref="Options"/> snapshot.</summary>
     private EdlManager EnsureManager()
@@ -38,6 +49,7 @@ public sealed class EdlService : IDisposable
         finally
         {
             _opLock.Release();
+            StateChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -74,6 +86,7 @@ public sealed class EdlService : IDisposable
     {
         _manager?.Dispose();
         _manager = null;
+        StateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void Dispose()

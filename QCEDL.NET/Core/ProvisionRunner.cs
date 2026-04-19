@@ -1,9 +1,9 @@
 using System.Xml.Linq;
-using QCEDL.CLI.Helpers;
+using Qualcomm.EmergencyDownload.Helpers;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 /// <summary>Shared orchestration for the UFS <c>provision</c> flow.</summary>
 public static class ProvisionRunner

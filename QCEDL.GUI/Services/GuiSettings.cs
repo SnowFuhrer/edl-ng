@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using QCEDL.CLI.Helpers;
+using Qualcomm.EmergencyDownload.Helpers;
 
 namespace QCEDL.GUI.Services;
 

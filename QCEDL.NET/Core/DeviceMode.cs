@@ -1,4 +1,4 @@
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 public enum DeviceMode
 {

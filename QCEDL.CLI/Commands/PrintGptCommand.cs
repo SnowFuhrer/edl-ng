@@ -2,6 +2,8 @@ using System.CommandLine;
 using QCEDL.CLI.Core;
 using QCEDL.CLI.Helpers;
 using QCEDL.NET.PartitionTable;
+using Qualcomm.EmergencyDownload.Core;
+using Qualcomm.EmergencyDownload.Helpers;
 
 namespace QCEDL.CLI.Commands;
 

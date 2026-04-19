@@ -2,11 +2,11 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using LibUsbDotNet.Main;
-using QCEDL.CLI.Helpers;
 using QCEDL.NET.PartitionTable;
 using QCEDL.NET.Todo;
 using QCEDL.NET.USB;
 using Qualcomm.EmergencyDownload.ChipInfo;
+using Qualcomm.EmergencyDownload.Helpers;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.JSON.StorageInfo;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml;
@@ -14,7 +14,7 @@ using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 using Qualcomm.EmergencyDownload.Layers.PBL.Sahara;
 using Qualcomm.EmergencyDownload.Transport;
 
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
 {

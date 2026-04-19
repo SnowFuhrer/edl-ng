@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reactive.Linq;
 using Avalonia.Threading;
-using QCEDL.CLI.Core;
-using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
+using Qualcomm.EmergencyDownload.Core;
+using Qualcomm.EmergencyDownload.Helpers;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -42,7 +42,8 @@ public sealed partial class RawProgramViewModel : ViewModelBase
     public RawProgramViewModel(EdlService service)
     {
         _service = service;
-        _canRun = this.WhenAnyValue(x => x.CanInteract);
+        _canRun = this.WhenAnyValue(x => x.CanInteract)
+            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
 
         LogCommandErrors();
 
@@ -185,7 +186,7 @@ public sealed partial class RawProgramViewModel : ViewModelBase
         }
     }
 
-    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    [ReactiveCommand]
     private async Task AddXmlAsync()
     {
         var paths = await PickFile.Handle(new OpenFileRequest(
@@ -198,13 +199,13 @@ public sealed partial class RawProgramViewModel : ViewModelBase
         }
     }
 
-    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    [ReactiveCommand]
     private void ClearXml() => XmlFiles.Clear();
 
-    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    [ReactiveCommand]
     private void RemoveXml(string path) => XmlFiles.Remove(path);
 
-    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    [ReactiveCommand]
     private async Task BrowseDumpDirAsync()
     {
         var path = await PickFolder.Handle(new OpenFolderRequest(

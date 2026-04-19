@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
-using QCEDL.CLI.Helpers;
-namespace QCEDL.CLI.Core;
+using Qualcomm.EmergencyDownload.Helpers;
+namespace Qualcomm.EmergencyDownload.Core;
 
 /// <summary>
 /// Manages direct access to host MTD devices for operations bypassing USB Firehose.
@@ -35,7 +35,7 @@ internal sealed class HostDeviceManager : BlockDeviceManagerBase
         public uint Length;
     }
 
-    [DllImport("libc", SetLastError = true)]
+    [DllImport("libc", SetLastError = true, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
     private static extern int open(string pathname, int flags);
 
     [DllImport("libc", SetLastError = true)]

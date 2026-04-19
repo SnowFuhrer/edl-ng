@@ -9,7 +9,6 @@ public sealed class AboutDialogViewModel : ViewModelBase
             new DependencyInfo("Avalonia", "MIT", "avalonia", "https://github.com/AvaloniaUI/Avalonia"),
             new DependencyInfo("ReactiveUI", "MIT", "reactiveui", "https://github.com/reactiveui/ReactiveUI"),
             new DependencyInfo("Inter font family", "SIL OFL 1.1", "inter", "https://github.com/rsms/inter"),
-            new DependencyInfo("System.CommandLine", "MIT", "command-line-api", "https://github.com/dotnet/command-line-api"),
             new DependencyInfo("System.IO.Ports", "MIT", "dotnet-runtime", "https://github.com/dotnet/runtime"),
             new DependencyInfo("LibUsbDotNet", "LGPL-3.0", "libusbdotnet", "https://github.com/LibUsbDotNet/LibUsbDotNet"),
             new DependencyInfo("Vanara.PInvoke", "MIT", "vanara", "https://github.com/dahall/Vanara"),

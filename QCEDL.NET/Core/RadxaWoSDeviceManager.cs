@@ -2,11 +2,11 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
-using QCEDL.CLI.Helpers;
+using Qualcomm.EmergencyDownload.Helpers;
 using Vanara.PInvoke;
 using FileAccess = Vanara.PInvoke.Kernel32.FileAccess;
 
-namespace QCEDL.CLI.Core;
+namespace Qualcomm.EmergencyDownload.Core;
 
 internal sealed class RadxaWoSDeviceManager : BlockDeviceManagerBase
 {

@@ -1,4 +1,4 @@
-namespace QCEDL.CLI.Helpers;
+namespace Qualcomm.EmergencyDownload.Helpers;
 
 internal static class AlignmentHelper
 {

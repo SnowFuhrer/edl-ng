@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace QCEDL.CLI.Helpers;
+namespace Qualcomm.EmergencyDownload.Helpers;
 
 internal static partial class ImageSizeParser
 {

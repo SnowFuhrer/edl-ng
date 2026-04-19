@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Reactive.Linq;
 using Avalonia.Threading;
-using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
+using Qualcomm.EmergencyDownload.Helpers;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -25,7 +25,8 @@ public sealed partial class SectorsViewModel : ViewModelBase
     public SectorsViewModel(EdlService service)
     {
         _service = service;
-        _canRun = this.WhenAnyValue(x => x.CanInteract);
+        _canRun = this.WhenAnyValue(x => x.CanInteract)
+            .CombineLatest(_service.WhenConnectedChanged, (ok, connected) => ok && connected);
 
         LogCommandErrors();
 
