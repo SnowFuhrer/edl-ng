@@ -135,11 +135,13 @@ public sealed partial class ConnectionViewModel : ViewModelBase
             .ToProperty(this, nameof(DevicesStatusText));
 
         // ── Command gates ──────────────────────────────────────────────────
-        // Connect/Probe require Step 1 (Scan) to have populated a candidate list,
-        // unless we are in direct mode where device discovery is irrelevant.
+        // Connect/Probe normally require Step 1 (Scan) to have populated a candidate list,
+        // but a manually typed serial-device path (honoured by EdlManager directly) or
+        // direct-mode fields also unblock the commands — discovery is not the only entry.
         _canConnect = this.WhenAnyValue(
-            x => x.IsBusy, x => x.IsDirectMode, x => x.HasCandidates,
-            (busy, direct, hasCandidates) => !busy && (direct || hasCandidates));
+            x => x.IsBusy, x => x.IsDirectMode, x => x.HasCandidates, x => x.SerialDevicePath,
+            (busy, direct, hasCandidates, serialPath) =>
+                !busy && (direct || hasCandidates || !string.IsNullOrWhiteSpace(serialPath)));
 
         // ── Side effects: selection drives the status-key ──────────────────
         this.WhenAnyValue(x => x.SelectedCandidate)
