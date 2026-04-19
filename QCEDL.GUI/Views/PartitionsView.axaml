@@ -3,6 +3,7 @@
              xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
              xmlns:svc="clr-namespace:QCEDL.GUI.Services"
              xmlns:l="clr-namespace:QCEDL.GUI.Markup"
+             xmlns:conv="using:Avalonia.Data.Converters"
              x:Class="QCEDL.GUI.Views.PartitionsView"
              x:DataType="vm:PartitionsViewModel">
     <StackPanel Spacing="20" MaxWidth="1040">
@@ -20,7 +21,7 @@
                     <Button Classes="primary" Content="{l:Localize Parts_ScanButton}" Click="OnScan" IsEnabled="{Binding CanInteract}" />
                     <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Width="140" VerticalAlignment="Center" />
                 </StackPanel>
-                <TextBlock Classes="caption" Text="{Binding StatusText}" />
+                <TextBlock Classes="caption" Text="{Binding StatusText}" IsVisible="{Binding StatusText, Converter={x:Static conv:StringConverters.IsNotNullOrEmpty}}" />
             </StackPanel>
         </Border>
 
@@ -75,7 +76,7 @@
                     <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Minimum="0" Maximum="100" />
                     <TextBlock Classes="mono" FontSize="13" Foreground="{DynamicResource BrushTextTertiary}" Text="{Binding ProgressText}" />
                 </StackPanel>
-                <TextBlock Classes="caption" Text="{Binding OpStatus}" />
+                <TextBlock Classes="caption" Text="{Binding OpStatus}" IsVisible="{Binding OpStatus, Converter={x:Static conv:StringConverters.IsNotNullOrEmpty}}" />
             </StackPanel>
         </Border>
     </StackPanel>

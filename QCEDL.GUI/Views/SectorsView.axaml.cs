@@ -21,31 +21,7 @@ public partial class SectorsView : UserControl
 
     private Window? GetOwner() => TopLevel.GetTopLevel(this) as Window;
 
-    private async void OnBrowseFile(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext is not SectorsViewModel vm)
-        {
-            return;
-        }
-        var top = TopLevel.GetTopLevel(this);
-        if (top is null)
-        {
-            return;
-        }
-
-        var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = Localizer.Instance["Sectors_OpenTitle"],
-            AllowMultiple = false,
-        });
-        var path = files.Count > 0 ? files[0].TryGetLocalPath() : null;
-        if (!string.IsNullOrEmpty(path))
-        {
-            vm.FilePath = path;
-        }
-    }
-
-    private async Task<string?> SavePickerAsync(string suggestedName)
+    private async Task<string?> PickSavePathAsync(string suggestedName)
     {
         var top = TopLevel.GetTopLevel(this);
         if (top is null)
@@ -61,18 +37,28 @@ public partial class SectorsView : UserControl
         return file?.TryGetLocalPath();
     }
 
+    private async Task<string?> PickOpenPathAsync()
+    {
+        var top = TopLevel.GetTopLevel(this);
+        if (top is null)
+        {
+            return null;
+        }
+        var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = Localizer.Instance["Sectors_OpenTitle"],
+            AllowMultiple = false,
+        });
+        return files.Count > 0 ? files[0].TryGetLocalPath() : null;
+    }
+
     private async void OnRead(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not SectorsViewModel vm || GetOwner() is not { })
         {
             return;
         }
-
-        var path = vm.FilePath;
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            path = await SavePickerAsync($"lun{vm.Lun}_lba{vm.StartLba}.img");
-        }
+        var path = await PickSavePathAsync($"lun{vm.Lun}_lba{vm.StartLba}.img");
         if (string.IsNullOrEmpty(path))
         {
             return;
@@ -86,11 +72,7 @@ public partial class SectorsView : UserControl
         {
             return;
         }
-        var path = vm.FilePath;
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            path = await SavePickerAsync($"lun{vm.Lun}.img");
-        }
+        var path = await PickSavePathAsync($"lun{vm.Lun}.img");
         if (string.IsNullOrEmpty(path))
         {
             return;
@@ -104,21 +86,7 @@ public partial class SectorsView : UserControl
         {
             return;
         }
-        var path = vm.FilePath;
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            var top = TopLevel.GetTopLevel(this);
-            if (top is null)
-            {
-                return;
-            }
-            var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-            {
-                Title = Localizer.Instance["Sectors_OpenTitle"],
-                AllowMultiple = false,
-            });
-            path = files.Count > 0 ? files[0].TryGetLocalPath() : null;
-        }
+        var path = await PickOpenPathAsync();
         if (string.IsNullOrEmpty(path))
         {
             return;

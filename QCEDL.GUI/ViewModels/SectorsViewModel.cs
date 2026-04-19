@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using QCEDL.CLI.Helpers;
@@ -12,10 +11,9 @@ namespace QCEDL.GUI.ViewModels;
 public sealed class SectorsViewModel : ViewModelBase
 {
     private readonly EdlService _service;
-    private string _lun = "0";
-    private string _startLba = "0";
-    private string _sectorCount = "1";
-    private string? _filePath;
+    private uint _lun;
+    private ulong _startLba;
+    private ulong _sectorCount = 1;
     private string _status = string.Empty;
     private long _bytesDone;
     private long _bytesTotal;
@@ -28,28 +26,22 @@ public sealed class SectorsViewModel : ViewModelBase
             this.RaisePropertyChanged(nameof(ProgressText));
     }
 
-    public string Lun
+    public uint Lun
     {
         get => _lun;
         set => this.RaiseAndSetIfChanged(ref _lun, value);
     }
 
-    public string StartLba
+    public ulong StartLba
     {
         get => _startLba;
         set => this.RaiseAndSetIfChanged(ref _startLba, value);
     }
 
-    public string SectorCount
+    public ulong SectorCount
     {
         get => _sectorCount;
         set => this.RaiseAndSetIfChanged(ref _sectorCount, value);
-    }
-
-    public string? FilePath
-    {
-        get => _filePath;
-        set => this.RaiseAndSetIfChanged(ref _filePath, value);
     }
 
     public string Status
@@ -104,16 +96,6 @@ public sealed class SectorsViewModel : ViewModelBase
             _bytesTotal / (1024.0 * 1024.0),
             ProgressPercent);
 
-    private static uint ParseUint(string? s, string field) =>
-        uint.TryParse((s ?? string.Empty).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var v)
-            ? v
-            : throw new FormatException($"Invalid {field}: '{s}'");
-
-    private static ulong ParseUlong(string? s, string field) =>
-        ulong.TryParse((s ?? string.Empty).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var v)
-            ? v
-            : throw new FormatException($"Invalid {field}: '{s}'");
-
     private static long ClampToLong(ulong value) =>
         value > long.MaxValue ? long.MaxValue : (long)value;
 
@@ -121,9 +103,9 @@ public sealed class SectorsViewModel : ViewModelBase
     {
         await RunAsync("Sectors_StatusReadingFormat", async () =>
         {
-            var lun = ParseUint(Lun, "LUN");
-            var start = ParseUlong(StartLba, "start LBA");
-            var count = ParseUlong(SectorCount, "sector count");
+            var lun = Lun;
+            var start = StartLba;
+            var count = SectorCount;
 
             var geometry = await _service.GetGeometryAsync(lun).ConfigureAwait(false);
             ResetProgress(ClampToLong(count * geometry.SectorSize));
@@ -146,7 +128,7 @@ public sealed class SectorsViewModel : ViewModelBase
     {
         await RunAsync("Sectors_StatusReadingFormat", async () =>
         {
-            var lun = ParseUint(Lun, "LUN");
+            var lun = Lun;
             var geometry = await _service.GetGeometryAsync(lun).ConfigureAwait(false);
             if (geometry.TotalSectors is null or 0)
             {
@@ -191,8 +173,8 @@ public sealed class SectorsViewModel : ViewModelBase
 
         await RunAsync("Sectors_StatusWritingFormat", async () =>
         {
-            var lun = ParseUint(Lun, "LUN");
-            var start = ParseUlong(StartLba, "start LBA");
+            var lun = Lun;
+            var start = StartLba;
             ResetProgress(info.Length);
 
             await _service.RunExclusiveAsync(async m =>
@@ -222,9 +204,9 @@ public sealed class SectorsViewModel : ViewModelBase
 
         await RunAsync("Sectors_StatusErasingFormat", async () =>
         {
-            var lun = ParseUint(Lun, "LUN");
-            var start = ParseUlong(StartLba, "start LBA");
-            var count = ParseUlong(SectorCount, "sector count");
+            var lun = Lun;
+            var start = StartLba;
+            var count = SectorCount;
 
             var geometry = await _service.GetGeometryAsync(lun).ConfigureAwait(false);
             ResetProgress(ClampToLong(count * geometry.SectorSize));

@@ -189,8 +189,6 @@
   <data name="Sectors_LunLabel" xml:space="preserve"><value>LUN</value></data>
   <data name="Sectors_StartLabel" xml:space="preserve"><value>開始 LBA</value></data>
   <data name="Sectors_CountLabel" xml:space="preserve"><value>セクタ数</value></data>
-  <data name="Sectors_FileLabel" xml:space="preserve"><value>ファイル</value></data>
-  <data name="Sectors_BrowseButton" xml:space="preserve"><value>参照…</value></data>
   <data name="Sectors_ReadButton" xml:space="preserve"><value>読み取り</value></data>
   <data name="Sectors_ReadLunButton" xml:space="preserve"><value>LUN 全体を読み取り</value></data>
   <data name="Sectors_WriteButton" xml:space="preserve"><value>書き込み</value></data>
@@ -206,4 +204,75 @@
   <data name="Sectors_StatusErasingFormat" xml:space="preserve"><value>LUN {0} @ LBA {1}({2} セクタ)を消去中…</value></data>
   <data name="Sectors_StatusDoneFormat" xml:space="preserve"><value>完了 — {0} セクタを {1:F2} 秒で処理。</value></data>
   <data name="Sectors_ErrorFormat" xml:space="preserve"><value>エラー: {0}</value></data>
+
+  <data name="Raw_Label" xml:space="preserve"><value>RAWPROGRAM</value></data>
+  <data name="Raw_Heading" xml:space="preserve"><value>マニフェスト書き込み</value></data>
+  <data name="Raw_Body" xml:space="preserve"><value>接続中のデバイスに rawprogramN.xml + patchN.xml のセットを書き込むか、現在のデバイスを rawprogram マニフェストとして書き出して、後で再書き込みできるようにします。破壊的な操作には入力確認が必要です。</value></data>
+  <data name="Raw_ExecTitle" xml:space="preserve"><value>rawprogram + patch を実行</value></data>
+  <data name="Raw_ExecCaption" xml:space="preserve"><value>rawprogramN.xml / patchN.xml ファイル(ワイルドカード可)を選択します。LUN 番号が一致するファイルは自動的にペアになります。</value></data>
+  <data name="Raw_AddFiles" xml:space="preserve"><value>XML を追加…</value></data>
+  <data name="Raw_ClearFiles" xml:space="preserve"><value>クリア</value></data>
+  <data name="Raw_RemoveFile" xml:space="preserve"><value>削除</value></data>
+  <data name="Raw_NoFilesPlaceholder" xml:space="preserve"><value>XML ファイルが追加されていません。「ファイルを追加…」から rawprogram/patch XML を選択してください。</value></data>
+  <data name="Raw_PickXmlTitle" xml:space="preserve"><value>rawprogram / patch XML ファイルを選択</value></data>
+  <data name="Raw_ExecButton" xml:space="preserve"><value>書き込み…</value></data>
+  <data name="Raw_ExecNoFiles" xml:space="preserve"><value>XML ファイルが選択されていません。</value></data>
+  <data name="Raw_ExecNoRawFiles" xml:space="preserve"><value>選択内に rawprogramN.xml がありません。</value></data>
+  <data name="Raw_ConfirmExecTitle" xml:space="preserve"><value>rawprogram マニフェストを書き込み</value></data>
+  <data name="Raw_ConfirmExecMessageFormat" xml:space="preserve"><value>次のマニフェストを書き込みます: {0}。既存のパーティションは上書きされます。</value></data>
+  <data name="Raw_ExecRunning" xml:space="preserve"><value>rawprogram マニフェストを書き込み中…</value></data>
+  <data name="Raw_ExecDoneFormat" xml:space="preserve"><value>完了 — rawprogram は {0:F2} 秒で終了しました。</value></data>
+  <data name="Raw_ErrorFormat" xml:space="preserve"><value>エラー: {0}</value></data>
+
+  <data name="Raw_DumpTitle" xml:space="preserve"><value>rawprogram をダンプ</value></data>
+  <data name="Raw_DumpCaption" xml:space="preserve"><value>指定 LUN 上の全パーティションをフォルダに書き出し、同じ場所に rawprogram{lun}.xml と patch{lun}.xml を生成します。</value></data>
+  <data name="Raw_DumpLunLabel" xml:space="preserve"><value>LUN</value></data>
+  <data name="Raw_DumpDirLabel" xml:space="preserve"><value>出力フォルダ</value></data>
+  <data name="Raw_DumpDirPlaceholder" xml:space="preserve"><value>/path/to/backup または C:\backup</value></data>
+  <data name="Raw_DumpSkipLabel" xml:space="preserve"><value>スキップするパーティション</value></data>
+  <data name="Raw_DumpSkipPlaceholder" xml:space="preserve"><value>カンマ区切り(例: userdata,super)</value></data>
+  <data name="Raw_DumpXmlOnlyLabel" xml:space="preserve"><value>XML のみ</value></data>
+  <data name="Raw_DumpXmlOnlyHint" xml:space="preserve"><value>rawprogram{lun}.xml + patch{lun}.xml のみを生成し、イメージは出力しません</value></data>
+  <data name="Raw_DumpButton" xml:space="preserve"><value>ダンプ</value></data>
+  <data name="Raw_DumpNoDir" xml:space="preserve"><value>先に出力フォルダを選択してください。</value></data>
+  <data name="Raw_DumpRunning" xml:space="preserve"><value>パーティションをダンプ中…</value></data>
+  <data name="Raw_DumpDoneFormat" xml:space="preserve"><value>完了 — ダンプは {0:F2} 秒で終了しました。</value></data>
+  <data name="Raw_PickDirTitle" xml:space="preserve"><value>出力フォルダを選択</value></data>
+
+  <data name="Adv_Label" xml:space="preserve"><value>高度</value></data>
+  <data name="Adv_Heading" xml:space="preserve"><value>デバイスライフサイクル</value></data>
+  <data name="Adv_Body" xml:space="preserve"><value>UFS プロビジョニング、単体のローダアップロード、電源コマンド。これらはどれも低レイヤの操作で、通常は 1 台につき 1 回だけ行います。</value></data>
+  <data name="Adv_ProvisionTitle" xml:space="preserve"><value>UFS プロビジョニング</value></data>
+  <data name="Adv_ProvisionCaption" xml:space="preserve"><value>UFS プロビジョニング XML を実行します。不可逆で、デバイスの LUN 構成が書き換わります。</value></data>
+  <data name="Adv_ProvisionFileLabel" xml:space="preserve"><value>XML ファイル</value></data>
+  <data name="Adv_ProvisionFilePlaceholder" xml:space="preserve"><value>provision.xml</value></data>
+  <data name="Adv_ProvisionButton" xml:space="preserve"><value>プロビジョニング…</value></data>
+  <data name="Adv_ProvisionPickTitle" xml:space="preserve"><value>UFS プロビジョニング XML を選択</value></data>
+  <data name="Adv_ProvisionNoFile" xml:space="preserve"><value>先にプロビジョニング XML を選択してください。</value></data>
+  <data name="Adv_ConfirmProvisionTitle" xml:space="preserve"><value>UFS プロビジョニングを実行</value></data>
+  <data name="Adv_ConfirmProvisionMessageFormat" xml:space="preserve"><value>「{0}」を使って UFS デバイスをプロビジョニングします。この操作は不可逆で、LUN 構成が書き換わります。</value></data>
+  <data name="Adv_ProvisionRunning" xml:space="preserve"><value>UFS プロビジョニング実行中…</value></data>
+  <data name="Adv_ProvisionDoneFormat" xml:space="preserve"><value>完了 — プロビジョニングは {0:F2} 秒で終了しました。</value></data>
+
+  <data name="Adv_UploadTitle" xml:space="preserve"><value>ローダアップロード(Sahara のみ)</value></data>
+  <data name="Adv_UploadCaption" xml:space="preserve"><value>Sahara ハンドシェイクを行い、設定済みの Firehose プログラマをアップロードします。その後の Firehose 操作には進みません。「接続」でローダパスを設定しておいてください。</value></data>
+  <data name="Adv_UploadButton" xml:space="preserve"><value>ローダをアップロード</value></data>
+  <data name="Adv_UploadNoLoader" xml:space="preserve"><value>先に「接続」でローダパスを設定してください。</value></data>
+  <data name="Adv_UploadWrongModeFormat" xml:space="preserve"><value>デバイスが Sahara モードではありません(現在: {0})。ローダをアップロードできません。</value></data>
+  <data name="Adv_UploadRunning" xml:space="preserve"><value>ローダをアップロード中…</value></data>
+  <data name="Adv_UploadDoneFormat" xml:space="preserve"><value>完了 — ローダのアップロードは {0:F2} 秒で終了しました。</value></data>
+
+  <data name="Adv_ResetTitle" xml:space="preserve"><value>リセット / 電源</value></data>
+  <data name="Adv_ResetCaption" xml:space="preserve"><value>Firehose 電源コマンド(リセット、電源オフ、EDL 復帰)を送信します。指定した遅延のあとに実行されます。</value></data>
+  <data name="Adv_ResetModeLabel" xml:space="preserve"><value>モード</value></data>
+  <data name="Adv_ResetDelayLabel" xml:space="preserve"><value>遅延(秒)</value></data>
+  <data name="Adv_ResetButton" xml:space="preserve"><value>送信…</value></data>
+  <data name="Adv_ConfirmResetTitle" xml:space="preserve"><value>電源コマンドを送信</value></data>
+  <data name="Adv_ConfirmResetMessageFormat" xml:space="preserve"><value>「{0}」を {1} 秒の遅延で送信します。デバイスは Firehose モードを抜けます。</value></data>
+  <data name="Adv_ResetRunning" xml:space="preserve"><value>電源コマンド送信中…</value></data>
+  <data name="Adv_ResetDoneFormat" xml:space="preserve"><value>完了 — 電源コマンドは {0:F2} 秒で送信されました。</value></data>
+  <data name="Adv_ResetFailedFormat" xml:space="preserve"><value>電源コマンド「{0}」がデバイスに拒否されました(NAK)。</value></data>
+  <data name="Adv_ResetBadDelayFormat" xml:space="preserve"><value>遅延値が不正です: 「{0}」。0 以上の整数を指定してください。</value></data>
+
+  <data name="Adv_ErrorFormat" xml:space="preserve"><value>エラー: {0}</value></data>
 </root>

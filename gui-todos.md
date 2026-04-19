@@ -107,11 +107,11 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 - [Done] `erase-part`, `erase-sector` with typed-string confirmation for destructive ranges.
 
 **Phase 3 — RawProgram & Advanced**
-- [Todo] `rawprogram` execute (multi-file selection, progress aggregation).
-- [Todo] `dump-rawprogram` export (output dir picker, `--gen-xml-only`, `--skip`).
-- [Todo] `provision` XML runner.
-- [Todo] `upload-loader` standalone action.
-- [Todo] `reset` with mode + delay.
+- [Done] `rawprogram` execute (multi-file selection, progress aggregation).
+- [Done] `dump-rawprogram` export (output dir picker, `--gen-xml-only`, `--skip`).
+- [Done] `provision` XML runner.
+- [Done] `upload-loader` standalone action.
+- [Done] `reset` with mode + delay.
 
 **Phase 4 — Polish**
 - [Todo] Keyboard shortcuts, focus visuals audit, contrast audit.
@@ -140,11 +140,11 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 | `read-sector` / `read-lun` | 2 | Done | Sectors view: LUN + start/count, save picker, progress. `read-lun` uses `StorageGeometry.TotalSectors`. |
 | `write-sector` | 2 | Done | Confirmation requires typed `WRITE`. |
 | `erase-sector` | 2 | Done | Confirmation requires typed `ERASE`. |
-| `rawprogram` | 3 | Todo | |
-| `dump-rawprogram` | 3 | Todo | |
-| `provision` | 3 | Todo | |
-| `upload-loader` | 3 | Todo | (Reused via `EdlManager.UploadLoaderViaSaharaAsync`.) |
-| `reset` | 3 | Todo | |
+| `rawprogram` | 3 | Done | Multi-file picker, per-program progress, typed `FLASH` confirmation. Shared runner `RawProgramRunner`. |
+| `dump-rawprogram` | 3 | Done | Output folder picker, `--gen-xml-only`, skip list. Shared runner `DumpRawprogramRunner`. |
+| `provision` | 3 | Done | XML picker + typed `PROVISION` confirmation. Shared runner `ProvisionRunner`. |
+| `upload-loader` | 3 | Done | Standalone button on Advanced view; requires Sahara mode. |
+| `reset` | 3 | Done | Mode + delay on Advanced view; confirmation required. |
 | Destructive-action confirmation dialog | 2 | Done | `Views/ConfirmDialog` + `ConfirmDialogViewModel`. Supports plain confirm and typed-string double-confirm. |
 | Cancellable progress | 2 | Todo | Underlying Firehose/Sahara paths don't accept a `CancellationToken`; revisit once the protocol layer exposes one. |
 | Settings persistence | 4 | Todo | |

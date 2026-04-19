@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
              xmlns:l="clr-namespace:QCEDL.GUI.Markup"
+             xmlns:conv="using:Avalonia.Data.Converters"
              x:Class="QCEDL.GUI.Views.SectorsView"
              x:DataType="vm:SectorsViewModel">
     <StackPanel Spacing="20" MaxWidth="1040">
@@ -13,21 +14,15 @@
 
         <Border Classes="card">
             <StackPanel Spacing="14">
-                <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="14">
+                <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="14">
                     <TextBlock Grid.Row="0" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_LunLabel}" VerticalAlignment="Center" />
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Lun}" Width="140" HorizontalAlignment="Left" />
+                    <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding Lun}" Minimum="0" Maximum="31" Increment="1" FormatString="0" Width="220" HorizontalAlignment="Left" />
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_StartLabel}" VerticalAlignment="Center" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding StartLba}" Width="220" HorizontalAlignment="Left" />
+                    <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding StartLba}" Minimum="0" Increment="1" FormatString="0" Width="220" HorizontalAlignment="Left" />
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_CountLabel}" VerticalAlignment="Center" />
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SectorCount}" Width="220" HorizontalAlignment="Left" />
-
-                    <TextBlock Grid.Row="3" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_FileLabel}" VerticalAlignment="Center" />
-                    <Grid Grid.Row="3" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                        <TextBox Grid.Column="0" Text="{Binding FilePath}" />
-                        <Button Grid.Column="1" Content="{l:Localize Sectors_BrowseButton}" Click="OnBrowseFile" />
-                    </Grid>
+                    <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding SectorCount}" Minimum="1" Increment="1" FormatString="0" Width="220" HorizontalAlignment="Left" />
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -41,7 +36,7 @@
                     <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Minimum="0" Maximum="100" />
                     <TextBlock Classes="mono" FontSize="13" Foreground="{DynamicResource BrushTextTertiary}" Text="{Binding ProgressText}" />
                 </StackPanel>
-                <TextBlock Classes="caption" Text="{Binding Status}" />
+                <TextBlock Classes="caption" Text="{Binding Status}" IsVisible="{Binding Status, Converter={x:Static conv:StringConverters.IsNotNullOrEmpty}}" />
             </StackPanel>
         </Border>
     </StackPanel>

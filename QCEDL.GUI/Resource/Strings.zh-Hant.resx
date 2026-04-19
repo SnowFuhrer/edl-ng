@@ -189,8 +189,6 @@
   <data name="Sectors_LunLabel" xml:space="preserve"><value>LUN</value></data>
   <data name="Sectors_StartLabel" xml:space="preserve"><value>起始 LBA</value></data>
   <data name="Sectors_CountLabel" xml:space="preserve"><value>磁區數</value></data>
-  <data name="Sectors_FileLabel" xml:space="preserve"><value>檔案</value></data>
-  <data name="Sectors_BrowseButton" xml:space="preserve"><value>瀏覽…</value></data>
   <data name="Sectors_ReadButton" xml:space="preserve"><value>讀取</value></data>
   <data name="Sectors_ReadLunButton" xml:space="preserve"><value>讀取整個 LUN</value></data>
   <data name="Sectors_WriteButton" xml:space="preserve"><value>寫入</value></data>
@@ -206,4 +204,75 @@
   <data name="Sectors_StatusErasingFormat" xml:space="preserve"><value>正在清除 LUN {0} @ LBA {1}({2} 個磁區)…</value></data>
   <data name="Sectors_StatusDoneFormat" xml:space="preserve"><value>完成 — 處理了 {0} 個磁區,耗時 {1:F2} 秒。</value></data>
   <data name="Sectors_ErrorFormat" xml:space="preserve"><value>錯誤:{0}</value></data>
+
+  <data name="Raw_Label" xml:space="preserve"><value>RAWPROGRAM</value></data>
+  <data name="Raw_Heading" xml:space="preserve"><value>清單刷寫</value></data>
+  <data name="Raw_Body" xml:space="preserve"><value>對已連線裝置執行一組 rawprogramN.xml + patchN.xml,或把目前裝置匯出為 rawprogram 清單,以便日後重新燒錄。具破壞性的流程需要輸入確認。</value></data>
+  <data name="Raw_ExecTitle" xml:space="preserve"><value>執行 rawprogram + patch</value></data>
+  <data name="Raw_ExecCaption" xml:space="preserve"><value>選擇 rawprogramN.xml / patchN.xml 檔(支援萬用字元)。相同 LUN 編號的檔案會自動配對。</value></data>
+  <data name="Raw_AddFiles" xml:space="preserve"><value>新增 XML…</value></data>
+  <data name="Raw_ClearFiles" xml:space="preserve"><value>清空</value></data>
+  <data name="Raw_RemoveFile" xml:space="preserve"><value>移除</value></data>
+  <data name="Raw_NoFilesPlaceholder" xml:space="preserve"><value>尚未新增 XML 檔案。點擊「新增檔案…」選擇 rawprogram/patch XML。</value></data>
+  <data name="Raw_PickXmlTitle" xml:space="preserve"><value>選擇 rawprogram / patch XML 檔</value></data>
+  <data name="Raw_ExecButton" xml:space="preserve"><value>刷寫…</value></data>
+  <data name="Raw_ExecNoFiles" xml:space="preserve"><value>尚未選擇 XML 檔。</value></data>
+  <data name="Raw_ExecNoRawFiles" xml:space="preserve"><value>所選檔案中沒有 rawprogramN.xml。</value></data>
+  <data name="Raw_ConfirmExecTitle" xml:space="preserve"><value>刷寫 rawprogram 清單</value></data>
+  <data name="Raw_ConfirmExecMessageFormat" xml:space="preserve"><value>即將刷寫下列清單:{0}。現有分割區將被覆蓋。</value></data>
+  <data name="Raw_ExecRunning" xml:space="preserve"><value>正在刷寫 rawprogram 清單…</value></data>
+  <data name="Raw_ExecDoneFormat" xml:space="preserve"><value>完成 — rawprogram 耗時 {0:F2} 秒。</value></data>
+  <data name="Raw_ErrorFormat" xml:space="preserve"><value>錯誤:{0}</value></data>
+
+  <data name="Raw_DumpTitle" xml:space="preserve"><value>匯出 rawprogram</value></data>
+  <data name="Raw_DumpCaption" xml:space="preserve"><value>將指定 LUN 上的每個分割區匯出到一個資料夾,同時產生 rawprogram{lun}.xml 與 patch{lun}.xml。</value></data>
+  <data name="Raw_DumpLunLabel" xml:space="preserve"><value>LUN</value></data>
+  <data name="Raw_DumpDirLabel" xml:space="preserve"><value>輸出資料夾</value></data>
+  <data name="Raw_DumpDirPlaceholder" xml:space="preserve"><value>/path/to/backup 或 C:\backup</value></data>
+  <data name="Raw_DumpSkipLabel" xml:space="preserve"><value>略過分割區</value></data>
+  <data name="Raw_DumpSkipPlaceholder" xml:space="preserve"><value>以逗號分隔,例如 userdata,super</value></data>
+  <data name="Raw_DumpXmlOnlyLabel" xml:space="preserve"><value>僅產生 XML</value></data>
+  <data name="Raw_DumpXmlOnlyHint" xml:space="preserve"><value>僅產生 rawprogram{lun}.xml + patch{lun}.xml,不匯出映像</value></data>
+  <data name="Raw_DumpButton" xml:space="preserve"><value>匯出</value></data>
+  <data name="Raw_DumpNoDir" xml:space="preserve"><value>請先選擇輸出資料夾。</value></data>
+  <data name="Raw_DumpRunning" xml:space="preserve"><value>正在匯出分割區…</value></data>
+  <data name="Raw_DumpDoneFormat" xml:space="preserve"><value>完成 — 匯出耗時 {0:F2} 秒。</value></data>
+  <data name="Raw_PickDirTitle" xml:space="preserve"><value>選擇輸出資料夾</value></data>
+
+  <data name="Adv_Label" xml:space="preserve"><value>進階</value></data>
+  <data name="Adv_Heading" xml:space="preserve"><value>裝置生命週期</value></data>
+  <data name="Adv_Body" xml:space="preserve"><value>UFS 佈建、獨立上傳載入器以及電源指令。這些都是低階操作,通常每台裝置只需要執行一次。</value></data>
+  <data name="Adv_ProvisionTitle" xml:space="preserve"><value>UFS 佈建</value></data>
+  <data name="Adv_ProvisionCaption" xml:space="preserve"><value>執行 UFS 佈建 XML。不可逆,會重新劃分裝置 LUN。</value></data>
+  <data name="Adv_ProvisionFileLabel" xml:space="preserve"><value>XML 檔</value></data>
+  <data name="Adv_ProvisionFilePlaceholder" xml:space="preserve"><value>provision.xml</value></data>
+  <data name="Adv_ProvisionButton" xml:space="preserve"><value>佈建…</value></data>
+  <data name="Adv_ProvisionPickTitle" xml:space="preserve"><value>選擇 UFS 佈建 XML</value></data>
+  <data name="Adv_ProvisionNoFile" xml:space="preserve"><value>請先選擇佈建 XML。</value></data>
+  <data name="Adv_ConfirmProvisionTitle" xml:space="preserve"><value>執行 UFS 佈建</value></data>
+  <data name="Adv_ConfirmProvisionMessageFormat" xml:space="preserve"><value>即將使用「{0}」對 UFS 裝置進行佈建,操作不可逆,會重新劃分 LUN。</value></data>
+  <data name="Adv_ProvisionRunning" xml:space="preserve"><value>正在進行 UFS 佈建…</value></data>
+  <data name="Adv_ProvisionDoneFormat" xml:space="preserve"><value>完成 — 佈建耗時 {0:F2} 秒。</value></data>
+
+  <data name="Adv_UploadTitle" xml:space="preserve"><value>上傳載入器(僅 Sahara)</value></data>
+  <data name="Adv_UploadCaption" xml:space="preserve"><value>進行 Sahara 交握並上傳已設定的 Firehose 程式碼,不進入任何 Firehose 操作。需要先在「連線」中設定載入器路徑。</value></data>
+  <data name="Adv_UploadButton" xml:space="preserve"><value>上傳載入器</value></data>
+  <data name="Adv_UploadNoLoader" xml:space="preserve"><value>請先在「連線」中設定載入器路徑。</value></data>
+  <data name="Adv_UploadWrongModeFormat" xml:space="preserve"><value>裝置不在 Sahara 模式(目前為 {0}),無法上傳載入器。</value></data>
+  <data name="Adv_UploadRunning" xml:space="preserve"><value>正在上傳載入器…</value></data>
+  <data name="Adv_UploadDoneFormat" xml:space="preserve"><value>完成 — 載入器上傳耗時 {0:F2} 秒。</value></data>
+
+  <data name="Adv_ResetTitle" xml:space="preserve"><value>重開 / 電源</value></data>
+  <data name="Adv_ResetCaption" xml:space="preserve"><value>發送 Firehose 電源指令(重開、關機、回到 EDL),在所選延遲後執行。</value></data>
+  <data name="Adv_ResetModeLabel" xml:space="preserve"><value>模式</value></data>
+  <data name="Adv_ResetDelayLabel" xml:space="preserve"><value>延遲(秒)</value></data>
+  <data name="Adv_ResetButton" xml:space="preserve"><value>發送…</value></data>
+  <data name="Adv_ConfirmResetTitle" xml:space="preserve"><value>發送電源指令</value></data>
+  <data name="Adv_ConfirmResetMessageFormat" xml:space="preserve"><value>即將發送「{0}」指令,延遲 {1} 秒。裝置將離開 Firehose 模式。</value></data>
+  <data name="Adv_ResetRunning" xml:space="preserve"><value>正在發送電源指令…</value></data>
+  <data name="Adv_ResetDoneFormat" xml:space="preserve"><value>完成 — 電源指令耗時 {0:F2} 秒。</value></data>
+  <data name="Adv_ResetFailedFormat" xml:space="preserve"><value>電源指令「{0}」被裝置拒絕(NAK)。</value></data>
+  <data name="Adv_ResetBadDelayFormat" xml:space="preserve"><value>延遲值無效:「{0}」,必須是非負整數。</value></data>
+
+  <data name="Adv_ErrorFormat" xml:space="preserve"><value>錯誤:{0}</value></data>
 </root>

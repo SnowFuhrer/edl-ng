@@ -463,11 +463,11 @@
             <Setter Property="Background" Value="{DynamicResource BrushSurfaceHover}" />
         </Style>
         <Style Selector="^:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource BrushWarmSand}" />
+            <Setter Property="Background" Value="{DynamicResource BrushSelectionHaze}" />
             <Setter Property="TextElement.Foreground" Value="{DynamicResource BrushTextPrimary}" />
         </Style>
         <Style Selector="^:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource BrushWarmSand}" />
+            <Setter Property="Background" Value="{DynamicResource BrushSelectionHaze}" />
         </Style>
     </ControlTheme>
 
@@ -723,15 +723,21 @@
     <!-- ═══ ProgressBar ═════════════════════════════════════════════════════ -->
     <ControlTheme x:Key="{x:Type ProgressBar}" TargetType="ProgressBar">
         <Setter Property="Foreground" Value="{DynamicResource BrushTerracotta}" />
-        <Setter Property="Background" Value="{DynamicResource BrushBorderLight}" />
-        <Setter Property="MinHeight" Value="6" />
-        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Background" Value="{DynamicResource BrushWarmSand}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushRingDeep}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinHeight" Value="12" />
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusSharp}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="Template">
             <ControlTemplate TargetType="ProgressBar">
                 <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
+                        MinHeight="{TemplateBinding MinHeight}"
                         ClipToBounds="True">
-                    <Panel Name="PART_RootGrid">
+                    <Grid Name="PART_RootGrid">
                         <!-- Determinate fill -->
                         <Border Name="PART_Indicator"
                                 HorizontalAlignment="Left"
@@ -768,7 +774,7 @@
                                 </Style>
                             </Border.Styles>
                         </Border>
-                    </Panel>
+                    </Grid>
                 </Border>
             </ControlTemplate>
         </Setter>

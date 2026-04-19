@@ -189,8 +189,6 @@
   <data name="Sectors_LunLabel" xml:space="preserve"><value>LUN</value></data>
   <data name="Sectors_StartLabel" xml:space="preserve"><value>Start LBA</value></data>
   <data name="Sectors_CountLabel" xml:space="preserve"><value>Sector count</value></data>
-  <data name="Sectors_FileLabel" xml:space="preserve"><value>File</value></data>
-  <data name="Sectors_BrowseButton" xml:space="preserve"><value>Browse…</value></data>
   <data name="Sectors_ReadButton" xml:space="preserve"><value>Read</value></data>
   <data name="Sectors_ReadLunButton" xml:space="preserve"><value>Read whole LUN</value></data>
   <data name="Sectors_WriteButton" xml:space="preserve"><value>Write</value></data>
@@ -206,4 +204,75 @@
   <data name="Sectors_StatusErasingFormat" xml:space="preserve"><value>Erasing LUN {0} @ LBA {1} ({2} sectors)…</value></data>
   <data name="Sectors_StatusDoneFormat" xml:space="preserve"><value>Done — {0} sector(s) in {1:F2}s.</value></data>
   <data name="Sectors_ErrorFormat" xml:space="preserve"><value>Error: {0}</value></data>
+
+  <data name="Raw_Label" xml:space="preserve"><value>RAWPROGRAM</value></data>
+  <data name="Raw_Heading" xml:space="preserve"><value>Manifest flashing</value></data>
+  <data name="Raw_Body" xml:space="preserve"><value>Run a rawprogramN.xml + patchN.xml set against the connected device, or dump the device to a rawprogram manifest for later re-flashing. Destructive flows require a typed confirmation.</value></data>
+  <data name="Raw_ExecTitle" xml:space="preserve"><value>Execute rawprogram + patch</value></data>
+  <data name="Raw_ExecCaption" xml:space="preserve"><value>Pick rawprogramN.xml / patchN.xml files (globs allowed). Files with matching LUN numbers are paired automatically.</value></data>
+  <data name="Raw_AddFiles" xml:space="preserve"><value>Add XML…</value></data>
+  <data name="Raw_ClearFiles" xml:space="preserve"><value>Clear</value></data>
+  <data name="Raw_RemoveFile" xml:space="preserve"><value>remove</value></data>
+  <data name="Raw_NoFilesPlaceholder" xml:space="preserve"><value>No XML files added yet. Click “Add files…” to select one or more rawprogram/patch XMLs.</value></data>
+  <data name="Raw_PickXmlTitle" xml:space="preserve"><value>Pick rawprogram / patch XML files</value></data>
+  <data name="Raw_ExecButton" xml:space="preserve"><value>Flash…</value></data>
+  <data name="Raw_ExecNoFiles" xml:space="preserve"><value>No XML files selected.</value></data>
+  <data name="Raw_ExecNoRawFiles" xml:space="preserve"><value>No rawprogramN.xml found in the selection.</value></data>
+  <data name="Raw_ConfirmExecTitle" xml:space="preserve"><value>Flash rawprogram manifest</value></data>
+  <data name="Raw_ConfirmExecMessageFormat" xml:space="preserve"><value>About to flash the following manifests: {0}. Existing partitions will be overwritten.</value></data>
+  <data name="Raw_ExecRunning" xml:space="preserve"><value>Flashing rawprogram manifest…</value></data>
+  <data name="Raw_ExecDoneFormat" xml:space="preserve"><value>Done — rawprogram finished in {0:F2}s.</value></data>
+  <data name="Raw_ErrorFormat" xml:space="preserve"><value>Error: {0}</value></data>
+
+  <data name="Raw_DumpTitle" xml:space="preserve"><value>Dump rawprogram</value></data>
+  <data name="Raw_DumpCaption" xml:space="preserve"><value>Dump every partition on a LUN into a folder and emit rawprogram{lun}.xml + patch{lun}.xml alongside the images.</value></data>
+  <data name="Raw_DumpLunLabel" xml:space="preserve"><value>LUN</value></data>
+  <data name="Raw_DumpDirLabel" xml:space="preserve"><value>Output folder</value></data>
+  <data name="Raw_DumpDirPlaceholder" xml:space="preserve"><value>/path/to/backup or C:\backup</value></data>
+  <data name="Raw_DumpSkipLabel" xml:space="preserve"><value>Skip partitions</value></data>
+  <data name="Raw_DumpSkipPlaceholder" xml:space="preserve"><value>comma-separated, e.g. userdata,super</value></data>
+  <data name="Raw_DumpXmlOnlyLabel" xml:space="preserve"><value>XML only</value></data>
+  <data name="Raw_DumpXmlOnlyHint" xml:space="preserve"><value>Generate only rawprogram{lun}.xml + patch{lun}.xml, skip image dump</value></data>
+  <data name="Raw_DumpButton" xml:space="preserve"><value>Dump</value></data>
+  <data name="Raw_DumpNoDir" xml:space="preserve"><value>Pick an output folder first.</value></data>
+  <data name="Raw_DumpRunning" xml:space="preserve"><value>Dumping partitions…</value></data>
+  <data name="Raw_DumpDoneFormat" xml:space="preserve"><value>Done — dump finished in {0:F2}s.</value></data>
+  <data name="Raw_PickDirTitle" xml:space="preserve"><value>Choose output folder</value></data>
+
+  <data name="Adv_Label" xml:space="preserve"><value>ADVANCED</value></data>
+  <data name="Adv_Heading" xml:space="preserve"><value>Device lifecycle</value></data>
+  <data name="Adv_Body" xml:space="preserve"><value>UFS provisioning, standalone loader upload, and power commands. These actions are low-level and usually done once per device.</value></data>
+  <data name="Adv_ProvisionTitle" xml:space="preserve"><value>UFS provision</value></data>
+  <data name="Adv_ProvisionCaption" xml:space="preserve"><value>Run a UFS provisioning XML. Irreversible; this reshapes the device's LUNs.</value></data>
+  <data name="Adv_ProvisionFileLabel" xml:space="preserve"><value>XML file</value></data>
+  <data name="Adv_ProvisionFilePlaceholder" xml:space="preserve"><value>provision.xml</value></data>
+  <data name="Adv_ProvisionButton" xml:space="preserve"><value>Provision…</value></data>
+  <data name="Adv_ProvisionPickTitle" xml:space="preserve"><value>Pick UFS provisioning XML</value></data>
+  <data name="Adv_ProvisionNoFile" xml:space="preserve"><value>Pick a provisioning XML first.</value></data>
+  <data name="Adv_ConfirmProvisionTitle" xml:space="preserve"><value>Run UFS provisioning</value></data>
+  <data name="Adv_ConfirmProvisionMessageFormat" xml:space="preserve"><value>About to provision the UFS device using “{0}”. This is irreversible and reshapes the device's LUNs.</value></data>
+  <data name="Adv_ProvisionRunning" xml:space="preserve"><value>Running UFS provisioning…</value></data>
+  <data name="Adv_ProvisionDoneFormat" xml:space="preserve"><value>Done — provisioning finished in {0:F2}s.</value></data>
+
+  <data name="Adv_UploadTitle" xml:space="preserve"><value>Upload loader (Sahara only)</value></data>
+  <data name="Adv_UploadCaption" xml:space="preserve"><value>Do a Sahara handshake and upload the configured Firehose programmer, without proceeding to any Firehose operation. Requires a loader path configured in Connection.</value></data>
+  <data name="Adv_UploadButton" xml:space="preserve"><value>Upload loader</value></data>
+  <data name="Adv_UploadNoLoader" xml:space="preserve"><value>Configure a loader path in Connection first.</value></data>
+  <data name="Adv_UploadWrongModeFormat" xml:space="preserve"><value>Device is not in Sahara mode (got {0}). Cannot upload loader.</value></data>
+  <data name="Adv_UploadRunning" xml:space="preserve"><value>Uploading loader…</value></data>
+  <data name="Adv_UploadDoneFormat" xml:space="preserve"><value>Done — loader uploaded in {0:F2}s.</value></data>
+
+  <data name="Adv_ResetTitle" xml:space="preserve"><value>Reset / power</value></data>
+  <data name="Adv_ResetCaption" xml:space="preserve"><value>Issue a Firehose power command (reset, power off, back to EDL). Runs after the chosen delay.</value></data>
+  <data name="Adv_ResetModeLabel" xml:space="preserve"><value>Mode</value></data>
+  <data name="Adv_ResetDelayLabel" xml:space="preserve"><value>Delay (s)</value></data>
+  <data name="Adv_ResetButton" xml:space="preserve"><value>Send…</value></data>
+  <data name="Adv_ConfirmResetTitle" xml:space="preserve"><value>Send power command</value></data>
+  <data name="Adv_ConfirmResetMessageFormat" xml:space="preserve"><value>About to send “{0}” with a {1}s delay. The device will leave Firehose mode.</value></data>
+  <data name="Adv_ResetRunning" xml:space="preserve"><value>Sending power command…</value></data>
+  <data name="Adv_ResetDoneFormat" xml:space="preserve"><value>Done — power command sent in {0:F2}s.</value></data>
+  <data name="Adv_ResetFailedFormat" xml:space="preserve"><value>Power command “{0}” was NAKed by the device.</value></data>
+  <data name="Adv_ResetBadDelayFormat" xml:space="preserve"><value>Invalid delay: '{0}'. Expected a non-negative integer.</value></data>
+
+  <data name="Adv_ErrorFormat" xml:space="preserve"><value>Error: {0}</value></data>
 </root>
