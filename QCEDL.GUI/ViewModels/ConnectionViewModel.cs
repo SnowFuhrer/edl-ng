@@ -1,4 +1,3 @@
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using QCEDL.CLI.Core;
@@ -6,46 +5,47 @@ using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace QCEDL.GUI.ViewModels;
 
-public sealed class ConnectionViewModel : ViewModelBase
+public sealed partial class ConnectionViewModel : ViewModelBase
 {
     private readonly EdlService _service;
-    private string? _loaderPath;
-    private string _vidHex = "05C6";
-    private string _pidHex = "9008";
-    private StorageType _memoryType = StorageType.Ufs;
-    private uint _slot;
-    private string? _hostDevTarget;
-    private string? _imgSize;
-    private bool _radxaWos;
+    private readonly IObservable<bool> _canRun;
+
+    [Reactive] private string? _loaderPath;
+    [Reactive] private string _vidHex = "05C6";
+    [Reactive] private string _pidHex = "9008";
+    [Reactive] private StorageType _memoryType = StorageType.Ufs;
+    [Reactive] private uint _slot;
+    [Reactive] private string? _hostDevTarget;
+    [Reactive] private string? _imgSize;
+    [Reactive] private bool _radxaWos;
+    [Reactive] private string? _serialDevicePath;
+    [Reactive] private bool _isBusy;
+
     private TransportBackend _backend = TransportBackend.Auto;
-    private string? _serialDevicePath;
     private string _statusKey = "Conn_StatusNotConnected";
     private object?[] _statusArgs = [];
     private string _modeKey = "Conn_ModeUnknown";
     private string? _modeLiteral;
-    private bool _isBusy;
 
     public ConnectionViewModel(EdlService service)
     {
         _service = service;
-
-        var canRun = this.WhenAnyValue(x => x.IsBusy).Select(b => !b);
-
-        ConnectCommand = ReactiveCommand.CreateFromTask(ConnectAsync, canRun);
-        ProbeCommand = ReactiveCommand.CreateFromTask(ProbeAsync, canRun);
-        DisconnectCommand = ReactiveCommand.Create(Disconnect, canRun);
+        _canRun = this.WhenAnyValue(x => x.IsBusy).Select(b => !b);
 
         MemoryTypes = Enum.GetValues<StorageType>();
         Backends = Enum.GetValues<TransportBackend>();
 
-        // Surface async errors as log entries rather than swallowing them.
+        // Localized wording for the two hot paths: keep the explicit hook so the Conn_* keys drive the message.
         ConnectCommand.ThrownExceptions.Subscribe(ex =>
             Logging.Log(Localizer.Instance.Format("Conn_ConnectFailedFormat", ex.Message), LogLevel.Error));
         ProbeCommand.ThrownExceptions.Subscribe(ex =>
             Logging.Log(Localizer.Instance.Format("Conn_ProbeFailedFormat", ex.Message), LogLevel.Error));
+
+        LogCommandErrors();
 
         Localizer.Instance.CultureChanged += (_, _) =>
         {
@@ -60,46 +60,6 @@ public sealed class ConnectionViewModel : ViewModelBase
     public bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public bool IsUnix { get; } = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-    public string? LoaderPath
-    {
-        get => _loaderPath;
-        set => this.RaiseAndSetIfChanged(ref _loaderPath, value);
-    }
-    public string VidHex
-    {
-        get => _vidHex;
-        set => this.RaiseAndSetIfChanged(ref _vidHex, value);
-    }
-    public string PidHex
-    {
-        get => _pidHex;
-        set => this.RaiseAndSetIfChanged(ref _pidHex, value);
-    }
-    public StorageType MemoryType
-    {
-        get => _memoryType;
-        set => this.RaiseAndSetIfChanged(ref _memoryType, value);
-    }
-    public uint Slot
-    {
-        get => _slot;
-        set => this.RaiseAndSetIfChanged(ref _slot, value);
-    }
-    public string? HostDevTarget
-    {
-        get => _hostDevTarget;
-        set => this.RaiseAndSetIfChanged(ref _hostDevTarget, value);
-    }
-    public string? ImgSize
-    {
-        get => _imgSize;
-        set => this.RaiseAndSetIfChanged(ref _imgSize, value);
-    }
-    public bool RadxaWos
-    {
-        get => _radxaWos;
-        set => this.RaiseAndSetIfChanged(ref _radxaWos, value);
-    }
     public TransportBackend Backend
     {
         get => _backend;
@@ -110,13 +70,9 @@ public sealed class ConnectionViewModel : ViewModelBase
             this.RaisePropertyChanged(nameof(IsUsbBackend));
         }
     }
+
     public bool IsSerialBackend => _backend == TransportBackend.Serial;
     public bool IsUsbBackend => _backend != TransportBackend.Serial;
-    public string? SerialDevicePath
-    {
-        get => _serialDevicePath;
-        set => this.RaiseAndSetIfChanged(ref _serialDevicePath, value);
-    }
 
     public string StatusText => _statusArgs.Length == 0
         ? Localizer.Instance[_statusKey]
@@ -124,15 +80,7 @@ public sealed class ConnectionViewModel : ViewModelBase
 
     public string ModeText => _modeLiteral ?? Localizer.Instance[_modeKey];
 
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set => this.RaiseAndSetIfChanged(ref _isBusy, value);
-    }
-
-    public ReactiveCommand<Unit, Unit> ConnectCommand { get; }
-    public ReactiveCommand<Unit, Unit> ProbeCommand { get; }
-    public ReactiveCommand<Unit, Unit> DisconnectCommand { get; }
+    public Interaction<OpenFileRequest, IReadOnlyList<string>> PickFile { get; } = new();
 
     private void SetStatus(string key, params object?[] args)
     {
@@ -175,6 +123,7 @@ public sealed class ConnectionViewModel : ViewModelBase
         _service.ResetSession();
     }
 
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
     private async Task ProbeAsync()
     {
         IsBusy = true;
@@ -189,6 +138,7 @@ public sealed class ConnectionViewModel : ViewModelBase
         finally { IsBusy = false; }
     }
 
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
     private async Task ConnectAsync()
     {
         IsBusy = true;
@@ -211,12 +161,26 @@ public sealed class ConnectionViewModel : ViewModelBase
         finally { IsBusy = false; }
     }
 
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
     private void Disconnect()
     {
         _service.ResetSession();
         SetStatus("Conn_StatusDisconnected");
         SetModeKey("Conn_ModeUnknown");
         Logging.Log(Localizer.Instance["Conn_LogSessionClosed"], LogLevel.Info);
+    }
+
+    [ReactiveCommand]
+    private async Task BrowseLoaderAsync()
+    {
+        var paths = await PickFile.Handle(new OpenFileRequest(
+            Localizer.Instance["Conn_LoaderPickTitle"],
+            [FilePickerTypes.FirehoseLoader, FilePickerTypes.AnyFile],
+            AllowMultiple: false));
+        if (paths.Count > 0 && !string.IsNullOrEmpty(paths[0]))
+        {
+            LoaderPath = paths[0];
+        }
     }
 
     private static int? TryParseHex(string? s)

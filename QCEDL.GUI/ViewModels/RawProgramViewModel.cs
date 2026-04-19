@@ -1,22 +1,29 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using Avalonia.Controls;
+using System.Reactive.Linq;
 using Avalonia.Threading;
 using QCEDL.CLI.Core;
 using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
-using QCEDL.GUI.Views;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace QCEDL.GUI.ViewModels;
 
-public sealed class RawProgramViewModel : ViewModelBase
+public sealed partial class RawProgramViewModel : ViewModelBase
 {
     private readonly EdlService _service;
+    private readonly IObservable<bool> _canRun;
+
+    [Reactive] private string _execStatus = string.Empty;
+    [Reactive] private string _dumpLun = "0";
+    [Reactive] private string? _dumpOutputDir;
+    [Reactive] private bool _dumpGenXmlOnly;
+    [Reactive] private string? _dumpSkip;
+    [Reactive] private string _dumpStatus = string.Empty;
 
     // Execute card
-    private string _execStatus = string.Empty;
     private bool _isExecBusy;
     private long _execBytesDone;
     private long _execBytesTotal;
@@ -25,11 +32,6 @@ public sealed class RawProgramViewModel : ViewModelBase
     private int _execProgramCount;
 
     // Dump card
-    private string _dumpLun = "0";
-    private string? _dumpOutputDir;
-    private bool _dumpGenXmlOnly;
-    private string? _dumpSkip;
-    private string _dumpStatus = string.Empty;
     private bool _isDumpBusy;
     private long _dumpBytesDone;
     private long _dumpBytesTotal;
@@ -40,6 +42,10 @@ public sealed class RawProgramViewModel : ViewModelBase
     public RawProgramViewModel(EdlService service)
     {
         _service = service;
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
+
+        LogCommandErrors();
+
         Localizer.Instance.CultureChanged += (_, _) =>
         {
             this.RaisePropertyChanged(nameof(ExecProgressText));
@@ -51,13 +57,6 @@ public sealed class RawProgramViewModel : ViewModelBase
     public ObservableCollection<string> XmlFiles { get; } = [];
 
     public bool HasXmlFiles => XmlFiles.Count > 0;
-
-    // Execute bindings
-    public string ExecStatus
-    {
-        get => _execStatus;
-        private set => this.RaiseAndSetIfChanged(ref _execStatus, value);
-    }
 
     public bool IsExecBusy
     {
@@ -112,37 +111,6 @@ public sealed class RawProgramViewModel : ViewModelBase
                 ? formatted
                 : $"[{_execProgramIndex}/{_execProgramCount}] {_execProgressLabel} — {formatted}";
         }
-    }
-
-    // Dump bindings
-    public string DumpLun
-    {
-        get => _dumpLun;
-        set => this.RaiseAndSetIfChanged(ref _dumpLun, value);
-    }
-
-    public string? DumpOutputDir
-    {
-        get => _dumpOutputDir;
-        set => this.RaiseAndSetIfChanged(ref _dumpOutputDir, value);
-    }
-
-    public bool DumpGenXmlOnly
-    {
-        get => _dumpGenXmlOnly;
-        set => this.RaiseAndSetIfChanged(ref _dumpGenXmlOnly, value);
-    }
-
-    public string? DumpSkip
-    {
-        get => _dumpSkip;
-        set => this.RaiseAndSetIfChanged(ref _dumpSkip, value);
-    }
-
-    public string DumpStatus
-    {
-        get => _dumpStatus;
-        private set => this.RaiseAndSetIfChanged(ref _dumpStatus, value);
     }
 
     public bool IsDumpBusy
@@ -202,7 +170,11 @@ public sealed class RawProgramViewModel : ViewModelBase
 
     public bool CanInteract => !_isExecBusy && !_isDumpBusy;
 
-    public void AddXmlFiles(IEnumerable<string> paths)
+    public Interaction<OpenFileRequest, IReadOnlyList<string>> PickFile { get; } = new();
+    public Interaction<OpenFolderRequest, string?> PickFolder { get; } = new();
+    public Interaction<ConfirmRequest, bool> Confirm { get; } = new();
+
+    private void AddXmlFiles(IEnumerable<string> paths)
     {
         foreach (var p in paths)
         {
@@ -213,11 +185,38 @@ public sealed class RawProgramViewModel : ViewModelBase
         }
     }
 
-    public void RemoveXmlFile(string path) => XmlFiles.Remove(path);
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task AddXmlAsync()
+    {
+        var paths = await PickFile.Handle(new OpenFileRequest(
+            Localizer.Instance["Raw_PickXmlTitle"],
+            [FilePickerTypes.Xml],
+            AllowMultiple: true));
+        if (paths.Count > 0)
+        {
+            AddXmlFiles(paths);
+        }
+    }
 
-    public void ClearXmlFiles() => XmlFiles.Clear();
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private void ClearXml() => XmlFiles.Clear();
 
-    public async Task RunRawProgramAsync(Window owner)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private void RemoveXml(string path) => XmlFiles.Remove(path);
+
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task BrowseDumpDirAsync()
+    {
+        var path = await PickFolder.Handle(new OpenFolderRequest(
+            Localizer.Instance["Raw_PickDirTitle"]));
+        if (!string.IsNullOrEmpty(path))
+        {
+            DumpOutputDir = path;
+        }
+    }
+
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ExecAsync()
     {
         if (XmlFiles.Count == 0)
         {
@@ -241,12 +240,11 @@ public sealed class RawProgramViewModel : ViewModelBase
 
         var summary = string.Join(", ",
             grouped.RawProgramByLun.OrderBy(kv => kv.Key).Select(kv => $"LUN {kv.Key}: {kv.Value.Name}"));
-        var confirmed = await ConfirmDialog.ShowAsync(
-            owner,
+        var confirmed = await Confirm.Handle(new ConfirmRequest(
             Localizer.Instance["Raw_ConfirmExecTitle"],
             Localizer.Instance.Format("Raw_ConfirmExecMessageFormat", summary),
-            danger: true,
-            requiredConfirmation: "FLASH").ConfigureAwait(true);
+            Danger: true,
+            RequiredConfirmation: "FLASH"));
         if (!confirmed)
         {
             return;
@@ -256,7 +254,8 @@ public sealed class RawProgramViewModel : ViewModelBase
             _service.RunExclusiveAsync(m => RawProgramRunner.RunAsync(m, grouped, OnExecProgress)));
     }
 
-    public async Task RunDumpAsync()
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task DumpAsync()
     {
         if (string.IsNullOrWhiteSpace(DumpOutputDir))
         {

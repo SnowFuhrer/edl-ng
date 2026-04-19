@@ -1,36 +1,43 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using Avalonia.Controls;
+using System.Reactive.Linq;
 using Avalonia.Threading;
 using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
-using QCEDL.GUI.Views;
 using QCEDL.NET.PartitionTable;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace QCEDL.GUI.ViewModels;
 
-public sealed class PartitionsViewModel : ViewModelBase
+public sealed partial class PartitionsViewModel : ViewModelBase
 {
     private readonly EdlService _service;
-    private string? _lunFilter;
+    private readonly IObservable<bool> _canRun;
+
+    [Reactive] private string? _lunFilter;
+    [Reactive] private string? _opPartitionName;
+    [Reactive] private string? _opLun;
+    [Reactive] private string _opStatus = string.Empty;
+
     private bool _isBusy;
+    private bool _isOpRunning;
     private string _statusKey = "Parts_StatusNotScanned";
     private object?[] _statusArgs = [];
-
-    // Operation state
-    private string? _opPartitionName;
-    private string? _opLun;
-    private string _opStatus = string.Empty;
     private long _opBytesDone;
     private long _opBytesTotal;
-    private bool _isOpRunning;
     private PartitionRow? _selectedRow;
 
     public PartitionsViewModel(EdlService service)
     {
         _service = service;
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
+
+        ScanCommand.ThrownExceptions.Subscribe(ex =>
+            Logging.Log(Localizer.Instance.Format("Parts_LogScanFailedFormat", ex.Message), LogLevel.Error));
+
+        LogCommandErrors();
 
         Localizer.Instance.CultureChanged += (_, _) =>
         {
@@ -40,12 +47,6 @@ public sealed class PartitionsViewModel : ViewModelBase
     }
 
     public ObservableCollection<PartitionRow> Partitions { get; } = [];
-
-    public string? LunFilter
-    {
-        get => _lunFilter;
-        set => this.RaiseAndSetIfChanged(ref _lunFilter, value);
-    }
 
     public bool IsBusy
     {
@@ -72,24 +73,6 @@ public sealed class PartitionsViewModel : ViewModelBase
     public string StatusText => _statusArgs.Length == 0
         ? Localizer.Instance[_statusKey]
         : Localizer.Instance.Format(_statusKey, _statusArgs);
-
-    public string? OpPartitionName
-    {
-        get => _opPartitionName;
-        set => this.RaiseAndSetIfChanged(ref _opPartitionName, value);
-    }
-
-    public string? OpLun
-    {
-        get => _opLun;
-        set => this.RaiseAndSetIfChanged(ref _opLun, value);
-    }
-
-    public string OpStatus
-    {
-        get => _opStatus;
-        private set => this.RaiseAndSetIfChanged(ref _opStatus, value);
-    }
 
     public long OpBytesDone
     {
@@ -139,6 +122,10 @@ public sealed class PartitionsViewModel : ViewModelBase
         }
     }
 
+    public Interaction<SaveFileRequest, string?> PickSaveFile { get; } = new();
+    public Interaction<OpenFileRequest, IReadOnlyList<string>> PickOpenFile { get; } = new();
+    public Interaction<ConfirmRequest, bool> Confirm { get; } = new();
+
     private void SetStatus(string key, params object?[] args)
     {
         _statusKey = key;
@@ -149,7 +136,8 @@ public sealed class PartitionsViewModel : ViewModelBase
     private static uint? ParseLun(string? s) =>
         !string.IsNullOrWhiteSpace(s) && uint.TryParse(s.Trim(), out var v) ? v : null;
 
-    public async Task ScanAsync()
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ScanAsync()
     {
         if (IsBusy || IsOpRunning)
         {
@@ -217,10 +205,20 @@ public sealed class PartitionsViewModel : ViewModelBase
 
     private static long ClampToLong(ulong value) => value > long.MaxValue ? long.MaxValue : (long)value;
 
-    public async Task ReadPartitionAsync(string savePath)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ReadPartitionAsync()
     {
         var name = OpPartitionName?.Trim();
-        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(savePath))
+        if (string.IsNullOrEmpty(name))
+        {
+            return;
+        }
+
+        var savePath = await PickSaveFile.Handle(new SaveFileRequest(
+            Localizer.Instance["Parts_Ops_SavePickerTitle"],
+            SuggestedName: $"{name}.img",
+            DefaultExtension: "img"));
+        if (string.IsNullOrEmpty(savePath))
         {
             return;
         }
@@ -250,20 +248,30 @@ public sealed class PartitionsViewModel : ViewModelBase
         });
     }
 
-    public async Task WritePartitionAsync(Window owner, string inputPath)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task WritePartitionAsync()
     {
         var name = OpPartitionName?.Trim();
-        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(inputPath) || !File.Exists(inputPath))
+        if (string.IsNullOrEmpty(name))
+        {
+            return;
+        }
+
+        var picked = await PickOpenFile.Handle(new OpenFileRequest(
+            Localizer.Instance["Parts_Ops_OpenPickerTitle"],
+            [FilePickerTypes.AnyFile],
+            AllowMultiple: false));
+        var inputPath = picked.Count > 0 ? picked[0] : null;
+        if (string.IsNullOrEmpty(inputPath) || !File.Exists(inputPath))
         {
             return;
         }
 
         var info = new FileInfo(inputPath);
-        var confirmed = await ConfirmDialog.ShowAsync(
-            owner,
+        var confirmed = await Confirm.Handle(new ConfirmRequest(
             Localizer.Instance["Parts_Ops_ConfirmWriteTitle"],
             Localizer.Instance.Format("Parts_Ops_ConfirmWriteMessageFormat", name, info.FullName, info.Length),
-            danger: true).ConfigureAwait(true);
+            Danger: true));
         if (!confirmed)
         {
             return;
@@ -302,7 +310,8 @@ public sealed class PartitionsViewModel : ViewModelBase
         });
     }
 
-    public async Task ErasePartitionAsync(Window owner)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ErasePartitionAsync()
     {
         var name = OpPartitionName?.Trim();
         if (string.IsNullOrEmpty(name))
@@ -310,12 +319,11 @@ public sealed class PartitionsViewModel : ViewModelBase
             return;
         }
 
-        var confirmed = await ConfirmDialog.ShowAsync(
-            owner,
+        var confirmed = await Confirm.Handle(new ConfirmRequest(
             Localizer.Instance["Parts_Ops_ConfirmEraseTitle"],
             Localizer.Instance.Format("Parts_Ops_ConfirmEraseMessageFormat", name),
-            danger: true,
-            requiredConfirmation: name).ConfigureAwait(true);
+            Danger: true,
+            RequiredConfirmation: name));
         if (!confirmed)
         {
             return;

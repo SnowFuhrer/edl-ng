@@ -90,6 +90,7 @@
   <data name="Conn_ProgrammerCardCaption" xml:space="preserve"><value>選擇 libusb(WinUSB / LibUsbDotNet)或序列埠驅動程式。自動模式下 Windows 使用 libusb,Linux/macOS 使用序列埠。</value></data>
   <data name="Conn_Loader" xml:space="preserve"><value>Loader(.elf / .xml)</value></data>
   <data name="Conn_LoaderPlaceholder" xml:space="preserve"><value>Firehose programmer 或 qsahara_device_programmer.xml 路徑</value></data>
+  <data name="Conn_LoaderPickTitle" xml:space="preserve"><value>選擇 Firehose 載入器(.elf / .melf / .xml)</value></data>
   <data name="Conn_Browse" xml:space="preserve"><value>瀏覽…</value></data>
   <data name="Conn_Backend" xml:space="preserve"><value>後端</value></data>
   <data name="Conn_VidHex" xml:space="preserve"><value>USB VID(十六進位)</value></data>

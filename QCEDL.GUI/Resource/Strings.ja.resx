@@ -90,6 +90,7 @@
   <data name="Conn_ProgrammerCardCaption" xml:space="preserve"><value>libusb(WinUSB / LibUsbDotNet)またはシリアルドライバを選択します。自動では ウィンドウズ で libusb、リナックス/macOS でシリアルを選択します。</value></data>
   <data name="Conn_Loader" xml:space="preserve"><value>ローダー(.elf / .xml)</value></data>
   <data name="Conn_LoaderPlaceholder" xml:space="preserve"><value>ファイアホース プログラマー または qsahara_device_programmer.xml のパス</value></data>
+  <data name="Conn_LoaderPickTitle" xml:space="preserve"><value>Firehose ローダーを選択(.elf / .melf / .xml)</value></data>
   <data name="Conn_Browse" xml:space="preserve"><value>参照…</value></data>
   <data name="Conn_Backend" xml:space="preserve"><value>バックエンド</value></data>
   <data name="Conn_VidHex" xml:space="preserve"><value>USB VID(16 進)</value></data>

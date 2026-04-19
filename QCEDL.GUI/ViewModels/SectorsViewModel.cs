@@ -1,20 +1,23 @@
 using System.Diagnostics;
-using Avalonia.Controls;
+using System.Reactive.Linq;
 using Avalonia.Threading;
 using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
-using QCEDL.GUI.Views;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace QCEDL.GUI.ViewModels;
 
-public sealed class SectorsViewModel : ViewModelBase
+public sealed partial class SectorsViewModel : ViewModelBase
 {
     private readonly EdlService _service;
-    private uint _lun;
-    private ulong _startLba;
-    private ulong _sectorCount = 1;
-    private string _status = string.Empty;
+    private readonly IObservable<bool> _canRun;
+
+    [Reactive] private uint _lun;
+    [Reactive] private ulong _startLba;
+    [Reactive] private ulong _sectorCount = 1;
+    [Reactive] private string _status = string.Empty;
+
     private long _bytesDone;
     private long _bytesTotal;
     private bool _isBusy;
@@ -22,32 +25,12 @@ public sealed class SectorsViewModel : ViewModelBase
     public SectorsViewModel(EdlService service)
     {
         _service = service;
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
+
+        LogCommandErrors();
+
         Localizer.Instance.CultureChanged += (_, _) =>
             this.RaisePropertyChanged(nameof(ProgressText));
-    }
-
-    public uint Lun
-    {
-        get => _lun;
-        set => this.RaiseAndSetIfChanged(ref _lun, value);
-    }
-
-    public ulong StartLba
-    {
-        get => _startLba;
-        set => this.RaiseAndSetIfChanged(ref _startLba, value);
-    }
-
-    public ulong SectorCount
-    {
-        get => _sectorCount;
-        set => this.RaiseAndSetIfChanged(ref _sectorCount, value);
-    }
-
-    public string Status
-    {
-        get => _status;
-        private set => this.RaiseAndSetIfChanged(ref _status, value);
     }
 
     public bool IsBusy
@@ -96,11 +79,28 @@ public sealed class SectorsViewModel : ViewModelBase
             _bytesTotal / (1024.0 * 1024.0),
             ProgressPercent);
 
+    public Interaction<SaveFileRequest, string?> PickSaveFile { get; } = new();
+    public Interaction<OpenFileRequest, IReadOnlyList<string>> PickOpenFile { get; } = new();
+    public Interaction<ConfirmRequest, bool> Confirm { get; } = new();
+
     private static long ClampToLong(ulong value) =>
         value > long.MaxValue ? long.MaxValue : (long)value;
 
-    public async Task ReadSectorsAsync(string savePath)
+    private async Task<string?> PickSaveAsync(string suggested) =>
+        await PickSaveFile.Handle(new SaveFileRequest(
+            Localizer.Instance["Sectors_SaveTitle"],
+            SuggestedName: suggested,
+            DefaultExtension: "img"));
+
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ReadSectorsAsync()
     {
+        var path = await PickSaveAsync($"lun{Lun}_lba{StartLba}.img");
+        if (string.IsNullOrEmpty(path))
+        {
+            return;
+        }
+
         await RunAsync("Sectors_StatusReadingFormat", async () =>
         {
             var lun = Lun;
@@ -110,13 +110,13 @@ public sealed class SectorsViewModel : ViewModelBase
             var geometry = await _service.GetGeometryAsync(lun).ConfigureAwait(false);
             ResetProgress(ClampToLong(count * geometry.SectorSize));
 
-            var dir = Path.GetDirectoryName(savePath);
+            var dir = Path.GetDirectoryName(path);
             if (!string.IsNullOrEmpty(dir))
             {
                 Directory.CreateDirectory(dir);
             }
 
-            await using var fs = File.Open(savePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            await using var fs = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
             await _service.RunExclusiveAsync(m => m.ReadSectorsToStreamAsync(
                 lun, start, count, fs, Report)).ConfigureAwait(false);
 
@@ -124,8 +124,15 @@ public sealed class SectorsViewModel : ViewModelBase
         });
     }
 
-    public async Task ReadLunAsync(string savePath)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ReadLunAsync()
     {
+        var path = await PickSaveAsync($"lun{Lun}.img");
+        if (string.IsNullOrEmpty(path))
+        {
+            return;
+        }
+
         await RunAsync("Sectors_StatusReadingFormat", async () =>
         {
             var lun = Lun;
@@ -138,13 +145,13 @@ public sealed class SectorsViewModel : ViewModelBase
             var count = geometry.TotalSectors.Value;
             ResetProgress(ClampToLong(count * geometry.SectorSize));
 
-            var dir = Path.GetDirectoryName(savePath);
+            var dir = Path.GetDirectoryName(path);
             if (!string.IsNullOrEmpty(dir))
             {
                 Directory.CreateDirectory(dir);
             }
 
-            await using var fs = File.Open(savePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            await using var fs = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
             await _service.RunExclusiveAsync(m => m.ReadSectorsToStreamAsync(
                 lun, 0, count, fs, Report)).ConfigureAwait(false);
 
@@ -152,20 +159,25 @@ public sealed class SectorsViewModel : ViewModelBase
         });
     }
 
-    public async Task WriteSectorsAsync(Window owner, string inputPath)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task WriteSectorsAsync()
     {
-        if (!File.Exists(inputPath))
+        var picked = await PickOpenFile.Handle(new OpenFileRequest(
+            Localizer.Instance["Sectors_OpenTitle"],
+            [FilePickerTypes.AnyFile],
+            AllowMultiple: false));
+        var inputPath = picked.Count > 0 ? picked[0] : null;
+        if (string.IsNullOrEmpty(inputPath) || !File.Exists(inputPath))
         {
             return;
         }
 
         var info = new FileInfo(inputPath);
-        var confirmed = await ConfirmDialog.ShowAsync(
-            owner,
+        var confirmed = await Confirm.Handle(new ConfirmRequest(
             Localizer.Instance["Sectors_ConfirmWriteTitle"],
             Localizer.Instance.Format("Sectors_ConfirmWriteMessageFormat", info.FullName, info.Length, Lun, StartLba),
-            danger: true,
-            requiredConfirmation: "WRITE").ConfigureAwait(true);
+            Danger: true,
+            RequiredConfirmation: "WRITE"));
         if (!confirmed)
         {
             return;
@@ -189,14 +201,14 @@ public sealed class SectorsViewModel : ViewModelBase
         });
     }
 
-    public async Task EraseSectorsAsync(Window owner)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task EraseSectorsAsync()
     {
-        var confirmed = await ConfirmDialog.ShowAsync(
-            owner,
+        var confirmed = await Confirm.Handle(new ConfirmRequest(
             Localizer.Instance["Sectors_ConfirmEraseTitle"],
             Localizer.Instance.Format("Sectors_ConfirmEraseMessageFormat", Lun, StartLba, SectorCount),
-            danger: true,
-            requiredConfirmation: "ERASE").ConfigureAwait(true);
+            Danger: true,
+            RequiredConfirmation: "ERASE"));
         if (!confirmed)
         {
             return;

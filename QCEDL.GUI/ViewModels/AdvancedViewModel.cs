@@ -1,56 +1,44 @@
 using System.Diagnostics;
 using System.Globalization;
-using Avalonia.Controls;
+using System.Reactive.Linq;
 using QCEDL.CLI.Core;
 using QCEDL.CLI.Helpers;
 using QCEDL.GUI.Services;
-using QCEDL.GUI.Views;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose;
 using Qualcomm.EmergencyDownload.Layers.APSS.Firehose.Xml.Elements;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace QCEDL.GUI.ViewModels;
 
-public sealed class AdvancedViewModel : ViewModelBase
+public sealed partial class AdvancedViewModel : ViewModelBase
 {
     private readonly EdlService _service;
+    private readonly IObservable<bool> _canRun;
 
-    // Provision
-    private string? _provisionXmlPath;
-    private string _provisionStatus = string.Empty;
+    [Reactive] private string? _provisionXmlPath;
+    [Reactive] private string _provisionStatus = string.Empty;
+    [Reactive] private string _uploadStatus = string.Empty;
+    [Reactive] private PowerValue _resetMode = PowerValue.Reset;
+    [Reactive] private string _resetDelay = "1";
+    [Reactive] private string _resetStatus = string.Empty;
+
     private bool _isProvisionBusy;
-
-    // Upload loader
-    private string _uploadStatus = string.Empty;
     private bool _isUploadBusy;
-
-    // Reset
-    private PowerValue _resetMode = PowerValue.Reset;
-    private string _resetDelay = "1";
-    private string _resetStatus = string.Empty;
     private bool _isResetBusy;
 
     public AdvancedViewModel(EdlService service)
     {
         _service = service;
         ResetModes = Enum.GetValues<PowerValue>();
+        _canRun = this.WhenAnyValue(x => x.CanInteract);
+
+        LogCommandErrors();
     }
 
     public IReadOnlyList<PowerValue> ResetModes { get; }
 
     public bool CanInteract => !_isProvisionBusy && !_isUploadBusy && !_isResetBusy;
-
-    public string? ProvisionXmlPath
-    {
-        get => _provisionXmlPath;
-        set => this.RaiseAndSetIfChanged(ref _provisionXmlPath, value);
-    }
-
-    public string ProvisionStatus
-    {
-        get => _provisionStatus;
-        private set => this.RaiseAndSetIfChanged(ref _provisionStatus, value);
-    }
 
     public bool IsProvisionBusy
     {
@@ -60,12 +48,6 @@ public sealed class AdvancedViewModel : ViewModelBase
             this.RaiseAndSetIfChanged(ref _isProvisionBusy, value);
             this.RaisePropertyChanged(nameof(CanInteract));
         }
-    }
-
-    public string UploadStatus
-    {
-        get => _uploadStatus;
-        private set => this.RaiseAndSetIfChanged(ref _uploadStatus, value);
     }
 
     public bool IsUploadBusy
@@ -78,24 +60,6 @@ public sealed class AdvancedViewModel : ViewModelBase
         }
     }
 
-    public PowerValue ResetMode
-    {
-        get => _resetMode;
-        set => this.RaiseAndSetIfChanged(ref _resetMode, value);
-    }
-
-    public string ResetDelay
-    {
-        get => _resetDelay;
-        set => this.RaiseAndSetIfChanged(ref _resetDelay, value);
-    }
-
-    public string ResetStatus
-    {
-        get => _resetStatus;
-        private set => this.RaiseAndSetIfChanged(ref _resetStatus, value);
-    }
-
     public bool IsResetBusy
     {
         get => _isResetBusy;
@@ -106,7 +70,24 @@ public sealed class AdvancedViewModel : ViewModelBase
         }
     }
 
-    public async Task RunProvisionAsync(Window owner)
+    public Interaction<OpenFileRequest, IReadOnlyList<string>> PickFile { get; } = new();
+    public Interaction<ConfirmRequest, bool> Confirm { get; } = new();
+
+    [ReactiveCommand]
+    private async Task BrowseProvisionAsync()
+    {
+        var paths = await PickFile.Handle(new OpenFileRequest(
+            Localizer.Instance["Adv_ProvisionPickTitle"],
+            [FilePickerTypes.Xml],
+            AllowMultiple: false));
+        if (paths.Count > 0 && !string.IsNullOrEmpty(paths[0]))
+        {
+            ProvisionXmlPath = paths[0];
+        }
+    }
+
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ProvisionAsync()
     {
         if (string.IsNullOrWhiteSpace(ProvisionXmlPath) || !File.Exists(ProvisionXmlPath))
         {
@@ -114,12 +95,11 @@ public sealed class AdvancedViewModel : ViewModelBase
             return;
         }
 
-        var confirmed = await ConfirmDialog.ShowAsync(
-            owner,
+        var confirmed = await Confirm.Handle(new ConfirmRequest(
             Localizer.Instance["Adv_ConfirmProvisionTitle"],
             Localizer.Instance.Format("Adv_ConfirmProvisionMessageFormat", ProvisionXmlPath),
-            danger: true,
-            requiredConfirmation: "PROVISION").ConfigureAwait(true);
+            Danger: true,
+            RequiredConfirmation: "PROVISION"));
         if (!confirmed)
         {
             return;
@@ -137,7 +117,8 @@ public sealed class AdvancedViewModel : ViewModelBase
             });
     }
 
-    public async Task RunUploadLoaderAsync()
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task UploadLoaderAsync()
     {
         if (string.IsNullOrWhiteSpace(_service.Options.LoaderPath))
         {
@@ -162,7 +143,8 @@ public sealed class AdvancedViewModel : ViewModelBase
             }));
     }
 
-    public async Task RunResetAsync(Window owner)
+    [ReactiveCommand(CanExecute = nameof(_canRun))]
+    private async Task ResetAsync()
     {
         if (!uint.TryParse(ResetDelay.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var delay))
         {
@@ -170,11 +152,10 @@ public sealed class AdvancedViewModel : ViewModelBase
             return;
         }
 
-        var confirmed = await ConfirmDialog.ShowAsync(
-            owner,
+        var confirmed = await Confirm.Handle(new ConfirmRequest(
             Localizer.Instance["Adv_ConfirmResetTitle"],
             Localizer.Instance.Format("Adv_ConfirmResetMessageFormat", ResetMode, delay),
-            danger: true).ConfigureAwait(true);
+            Danger: true));
         if (!confirmed)
         {
             return;

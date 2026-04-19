@@ -18,7 +18,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <TextBlock Classes="body" Text="{l:Localize Parts_LunLabel}" VerticalAlignment="Center" />
                     <TextBox Text="{Binding LunFilter}" PlaceholderText="{l:Localize Parts_LunPlaceholder}" Width="100" />
-                    <Button Classes="primary" Content="{l:Localize Parts_ScanButton}" Click="OnScan" IsEnabled="{Binding CanInteract}" />
+                    <Button Classes="primary" Content="{l:Localize Parts_ScanButton}" Command="{Binding ScanCommand}" IsEnabled="{Binding CanInteract}" />
                     <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Width="140" VerticalAlignment="Center" />
                 </StackPanel>
                 <TextBlock Classes="caption" Text="{Binding StatusText}" IsVisible="{Binding StatusText, Converter={x:Static conv:StringConverters.IsNotNullOrEmpty}}" />
@@ -68,9 +68,9 @@
                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OpLun}" PlaceholderText="{l:Localize Parts_LunPlaceholder}" Width="140" HorizontalAlignment="Left" />
                 </Grid>
                 <StackPanel Orientation="Horizontal" Spacing="10">
-                    <Button Classes="primary" Content="{l:Localize Parts_Ops_ReadButton}" Click="OnReadPart" IsEnabled="{Binding CanInteract}" />
-                    <Button Content="{l:Localize Parts_Ops_WriteButton}" Click="OnWritePart" IsEnabled="{Binding CanInteract}" />
-                    <Button Classes="danger" Content="{l:Localize Parts_Ops_EraseButton}" Click="OnErasePart" IsEnabled="{Binding CanInteract}" />
+                    <Button Classes="primary" Content="{l:Localize Parts_Ops_ReadButton}" Command="{Binding ReadPartitionCommand}" IsEnabled="{Binding CanInteract}" />
+                    <Button Content="{l:Localize Parts_Ops_WriteButton}" Command="{Binding WritePartitionCommand}" IsEnabled="{Binding CanInteract}" />
+                    <Button Classes="danger" Content="{l:Localize Parts_Ops_EraseButton}" Command="{Binding ErasePartitionCommand}" IsEnabled="{Binding CanInteract}" />
                 </StackPanel>
                 <StackPanel Spacing="6" IsVisible="{Binding IsOpRunning}">
                     <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Minimum="0" Maximum="100" />

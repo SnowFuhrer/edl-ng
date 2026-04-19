@@ -90,6 +90,7 @@
   <data name="Conn_ProgrammerCardCaption" xml:space="preserve"><value>Choose libusb (WinUSB / LibUsbDotNet) or the serial driver. Auto picks libusb on Windows and serial on Linux/macOS.</value></data>
   <data name="Conn_Loader" xml:space="preserve"><value>Loader (.elf / .xml)</value></data>
   <data name="Conn_LoaderPlaceholder" xml:space="preserve"><value>Path to Firehose programmer or qsahara_device_programmer.xml</value></data>
+  <data name="Conn_LoaderPickTitle" xml:space="preserve"><value>Select Firehose loader (.elf / .melf / .xml)</value></data>
   <data name="Conn_Browse" xml:space="preserve"><value>Browse…</value></data>
   <data name="Conn_Backend" xml:space="preserve"><value>Backend</value></data>
   <data name="Conn_VidHex" xml:space="preserve"><value>USB VID (hex)</value></data>

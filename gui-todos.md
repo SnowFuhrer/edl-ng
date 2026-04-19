@@ -117,8 +117,8 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 - [Todo] Keyboard shortcuts, focus visuals audit, contrast audit.
 - [Todo] Settings persistence (log level, last loader, last VID/PID).
 - [Todo] About pane + version.
-- [Deferred] Multi-device selection UX (CLI currently picks the first).
-- [Deferred] Streaming probe / emergency-flash 9006 handling.
+- [Todo] Multi-device selection UX (CLI currently picks the first).
+- [Todo] Streaming probe / emergency-flash 9006 handling.
 
 ---
 

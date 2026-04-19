@@ -448,7 +448,12 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
                 return FindDeviceWindowsSerial();
             }
 
-            Logging.Log("Serial backend on macOS requires an explicit device path.", LogLevel.Error);
+            if (isMac)
+            {
+                return FindDeviceMacOSSerial();
+            }
+
+            Logging.Log("Serial backend on this OS requires an explicit device path.", LogLevel.Error);
             return false;
         }
 
@@ -622,6 +627,50 @@ public sealed class EdlManager(EdlOptions globalOptions) : IDisposable
         _deviceGuid = ComPortGuid; // For some relevant logic
         Logging.Log($"Selected device: {_devicePath}");
         Logging.Log("  Mode detected: Serial Port (ttyUSB/ttyACM)");
+        return true;
+    }
+
+    private bool FindDeviceMacOSSerial()
+    {
+        Logging.Log("Searching for Qualcomm EDL device on macOS (/dev/tty.usbserial-*)...");
+
+        // macOS has no sysfs-equivalent exposing idVendor/idProduct per tty, so we
+        // enumerate by filename only. If multiple candidates exist, callers should
+        // pass --serial-device explicitly.
+        List<string> candidates;
+        try
+        {
+            candidates = [.. Directory
+                .EnumerateFiles("/dev", "tty.usbserial-*", SearchOption.TopDirectoryOnly)
+                .OrderBy(p => p, StringComparer.Ordinal)];
+        }
+        catch (Exception ex)
+        {
+            Logging.Log($"Error during macOS device discovery: {ex.Message}", LogLevel.Error);
+            Logging.Log(ex.ToString(), LogLevel.Debug);
+            return false;
+        }
+
+        if (candidates.Count == 0)
+        {
+            Logging.Log("No /dev/tty.usbserial-* devices found.", LogLevel.Error);
+            return false;
+        }
+
+        if (candidates.Count > 1)
+        {
+            Logging.Log($"Multiple ({candidates.Count}) tty.usbserial-* devices found. Using the first one: {candidates[0]}", LogLevel.Warning);
+            foreach (var p in candidates)
+            {
+                Logging.Log($"  - Found: {p}", LogLevel.Warning);
+            }
+            Logging.Log("Pass --serial-device <path> to select a specific one.", LogLevel.Warning);
+        }
+
+        _devicePath = candidates[0];
+        _deviceGuid = ComPortGuid;
+        Logging.Log($"Selected device: {_devicePath}");
+        Logging.Log("  Mode detected: Serial Port (tty.usbserial)");
         return true;
     }
 

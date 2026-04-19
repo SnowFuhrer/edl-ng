@@ -1,13 +1,15 @@
+using System.Reactive.Disposables;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
+using QCEDL.GUI.Services;
 using QCEDL.GUI.ViewModels;
 
 namespace QCEDL.GUI.Views;
 
 public partial class ConnectionView : UserControl
 {
+    private readonly CompositeDisposable _subs = [];
+
     public ConnectionView()
     {
         InitializeComponent();
@@ -18,37 +20,18 @@ public partial class ConnectionView : UserControl
         AvaloniaXamlLoader.Load(this);
     }
 
-    private async void OnBrowseLoader(object? sender, RoutedEventArgs e)
+    protected override void OnAttachedToVisualTree(Avalonia.VisualTreeAttachmentEventArgs e)
     {
-        if (DataContext is not ConnectionViewModel vm)
+        base.OnAttachedToVisualTree(e);
+        if (DataContext is ConnectionViewModel vm)
         {
-            return;
+            _subs.Add(DialogBridges.RegisterPickFile(this, vm.PickFile));
         }
+    }
 
-        var top = TopLevel.GetTopLevel(this);
-        if (top is null)
-        {
-            return;
-        }
-
-        var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Select Firehose loader (.elf / .melf / .xml)",
-            AllowMultiple = false,
-            FileTypeFilter =
-            [
-                new FilePickerFileType("Firehose programmer")
-                {
-                    Patterns = ["*.elf", "*.melf", "*.mbn", "*.xml"],
-                },
-                new FilePickerFileType("All files") { Patterns = ["*"] },
-            ],
-        });
-
-        var picked = files.Count > 0 ? files[0].TryGetLocalPath() : null;
-        if (!string.IsNullOrEmpty(picked))
-        {
-            vm.LoaderPath = picked;
-        }
+    protected override void OnDetachedFromVisualTree(Avalonia.VisualTreeAttachmentEventArgs e)
+    {
+        _subs.Clear();
+        base.OnDetachedFromVisualTree(e);
     }
 }
