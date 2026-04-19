@@ -7,6 +7,7 @@
         x:Class="QCEDL.GUI.Views.MainWindow"
         x:DataType="vm:ShellViewModel"
         Title="{l:Localize App_Title}"
+        Icon="avares://qcedl-gui/Assets/edl-ng.ico"
         Width="1180" Height="760"
         MinWidth="920" MinHeight="560">
     <Window.KeyBindings>
