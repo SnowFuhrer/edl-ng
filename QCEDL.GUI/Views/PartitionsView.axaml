@@ -17,7 +17,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <TextBlock Classes="body" Text="{l:Localize Parts_LunLabel}" VerticalAlignment="Center" />
                     <TextBox Text="{Binding LunFilter}" PlaceholderText="{l:Localize Parts_LunPlaceholder}" Width="100" />
-                    <Button Classes="primary" Content="{l:Localize Parts_ScanButton}" Command="{Binding ScanCommand}" />
+                    <Button Classes="primary" Content="{l:Localize Parts_ScanButton}" Click="OnScan" IsEnabled="{Binding CanInteract}" />
                     <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Width="140" VerticalAlignment="Center" />
                 </StackPanel>
                 <TextBlock Classes="caption" Text="{Binding StatusText}" />
@@ -35,10 +35,14 @@
                     <TextBlock Grid.Column="5" Classes="label" Text="{l:Localize Parts_HeaderSize}" />
                 </Grid>
                 <Separator DockPanel.Dock="Top" />
-                <ItemsControl ItemsSource="{Binding Partitions}">
-                    <ItemsControl.ItemTemplate>
+                <ListBox ItemsSource="{Binding Partitions}"
+                         SelectedItem="{Binding SelectedRow}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         MaxHeight="360">
+                    <ListBox.ItemTemplate>
                         <DataTemplate DataType="svc:PartitionRow">
-                            <Grid ColumnDefinitions="60,60,*,140,140,140" Margin="0,6">
+                            <Grid ColumnDefinitions="60,60,*,140,140,140" Margin="0,2">
                                 <TextBlock Grid.Column="0" Classes="mono" Text="{Binding Lun}" />
                                 <TextBlock Grid.Column="1" Classes="mono" Text="{Binding Index}" />
                                 <TextBlock Grid.Column="2" Text="{Binding Name}" />
@@ -47,9 +51,32 @@
                                 <TextBlock Grid.Column="5" Text="{Binding SizeText}" />
                             </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </DockPanel>
+        </Border>
+
+        <Border Classes="card">
+            <StackPanel Spacing="14">
+                <TextBlock Classes="h3" Text="{l:Localize Parts_Ops_Title}" />
+                <TextBlock Classes="caption" Text="{l:Localize Parts_Ops_Caption}" />
+                <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="14">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Classes="body" Text="{l:Localize Parts_Ops_PartitionLabel}" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OpPartitionName}" PlaceholderText="{l:Localize Parts_Ops_PartitionPlaceholder}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Classes="body" Text="{l:Localize Parts_Ops_LunLabel}" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OpLun}" PlaceholderText="{l:Localize Parts_LunPlaceholder}" Width="140" HorizontalAlignment="Left" />
+                </Grid>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Classes="primary" Content="{l:Localize Parts_Ops_ReadButton}" Click="OnReadPart" IsEnabled="{Binding CanInteract}" />
+                    <Button Content="{l:Localize Parts_Ops_WriteButton}" Click="OnWritePart" IsEnabled="{Binding CanInteract}" />
+                    <Button Classes="danger" Content="{l:Localize Parts_Ops_EraseButton}" Click="OnErasePart" IsEnabled="{Binding CanInteract}" />
+                </StackPanel>
+                <StackPanel Spacing="6" IsVisible="{Binding IsOpRunning}">
+                    <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Minimum="0" Maximum="100" />
+                    <TextBlock Classes="mono" FontSize="13" Foreground="{DynamicResource BrushTextTertiary}" Text="{Binding ProgressText}" />
+                </StackPanel>
+                <TextBlock Classes="caption" Text="{Binding OpStatus}" />
+            </StackPanel>
         </Border>
     </StackPanel>
 </UserControl>

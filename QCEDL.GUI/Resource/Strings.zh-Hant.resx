@@ -156,4 +156,54 @@
   <data name="Settings_LanguageCardTitle" xml:space="preserve"><value>語言</value></data>
   <data name="Settings_LanguageCardCaption" xml:space="preserve"><value>選擇顯示語言。你的選擇會在工作階段之間保留。</value></data>
   <data name="Settings_LanguageLabel" xml:space="preserve"><value>語言</value></data>
+
+  <data name="Progress_Format" xml:space="preserve"><value>{0:F1} / {1:F1} MiB ({2:F0}%)</value></data>
+  <data name="Confirm_DefaultOk" xml:space="preserve"><value>繼續</value></data>
+  <data name="Confirm_DefaultCancel" xml:space="preserve"><value>取消</value></data>
+  <data name="Confirm_TypeToConfirmFormat" xml:space="preserve"><value>請輸入「{0}」以確認。</value></data>
+
+  <data name="Parts_Ops_Title" xml:space="preserve"><value>分割區操作</value></data>
+  <data name="Parts_Ops_Caption" xml:space="preserve"><value>讀取、寫入或清除具名分割區。點選上方一列可自動填入欄位。</value></data>
+  <data name="Parts_Ops_PartitionLabel" xml:space="preserve"><value>分割區</value></data>
+  <data name="Parts_Ops_PartitionPlaceholder" xml:space="preserve"><value>例如 boot、userdata</value></data>
+  <data name="Parts_Ops_LunLabel" xml:space="preserve"><value>LUN(可選)</value></data>
+  <data name="Parts_Ops_ReadButton" xml:space="preserve"><value>讀取…</value></data>
+  <data name="Parts_Ops_WriteButton" xml:space="preserve"><value>寫入…</value></data>
+  <data name="Parts_Ops_EraseButton" xml:space="preserve"><value>清除…</value></data>
+  <data name="Parts_Ops_SavePickerTitle" xml:space="preserve"><value>將分割區映像儲存到…</value></data>
+  <data name="Parts_Ops_OpenPickerTitle" xml:space="preserve"><value>選擇要寫入的映像</value></data>
+  <data name="Parts_Ops_ConfirmWriteTitle" xml:space="preserve"><value>寫入分割區</value></data>
+  <data name="Parts_Ops_ConfirmWriteMessageFormat" xml:space="preserve"><value>即將把「{1}」({2} 位元組)寫入分割區「{0}」。將覆寫既有內容。</value></data>
+  <data name="Parts_Ops_ConfirmEraseTitle" xml:space="preserve"><value>清除分割區</value></data>
+  <data name="Parts_Ops_ConfirmEraseMessageFormat" xml:space="preserve"><value>這將清除分割區「{0}」的所有磁區。資料無法復原。</value></data>
+  <data name="Parts_Ops_PartitionNotFoundFormat" xml:space="preserve"><value>在任何已掃描的 LUN 上都找不到分割區「{0}」。</value></data>
+  <data name="Parts_Ops_StatusReadingFormat" xml:space="preserve"><value>正在讀取「{0}」…</value></data>
+  <data name="Parts_Ops_StatusWritingFormat" xml:space="preserve"><value>正在寫入「{0}」…</value></data>
+  <data name="Parts_Ops_StatusErasingFormat" xml:space="preserve"><value>正在清除「{0}」…</value></data>
+  <data name="Parts_Ops_StatusDoneFormat" xml:space="preserve"><value>完成 —「{0}」耗時 {1:F2} 秒。</value></data>
+  <data name="Parts_Ops_StatusFailedFormat" xml:space="preserve"><value>失敗 — {0}</value></data>
+
+  <data name="Sectors_Label" xml:space="preserve"><value>磁區</value></data>
+  <data name="Sectors_Heading" xml:space="preserve"><value>磁區範圍</value></data>
+  <data name="Sectors_Body" xml:space="preserve"><value>在指定 LUN 上讀取、寫入或清除一段連續的 LBA。寫入與清除需要輸入確認字串。</value></data>
+  <data name="Sectors_LunLabel" xml:space="preserve"><value>LUN</value></data>
+  <data name="Sectors_StartLabel" xml:space="preserve"><value>起始 LBA</value></data>
+  <data name="Sectors_CountLabel" xml:space="preserve"><value>磁區數</value></data>
+  <data name="Sectors_FileLabel" xml:space="preserve"><value>檔案</value></data>
+  <data name="Sectors_BrowseButton" xml:space="preserve"><value>瀏覽…</value></data>
+  <data name="Sectors_ReadButton" xml:space="preserve"><value>讀取</value></data>
+  <data name="Sectors_ReadLunButton" xml:space="preserve"><value>讀取整個 LUN</value></data>
+  <data name="Sectors_WriteButton" xml:space="preserve"><value>寫入</value></data>
+  <data name="Sectors_EraseButton" xml:space="preserve"><value>清除</value></data>
+  <data name="Sectors_SaveTitle" xml:space="preserve"><value>將磁區資料儲存到…</value></data>
+  <data name="Sectors_OpenTitle" xml:space="preserve"><value>選擇資料檔</value></data>
+  <data name="Sectors_ConfirmWriteTitle" xml:space="preserve"><value>寫入磁區</value></data>
+  <data name="Sectors_ConfirmWriteMessageFormat" xml:space="preserve"><value>即將把「{0}」({1} 位元組)寫入 LUN {2},起始 LBA {3}。既有磁區將被覆寫。</value></data>
+  <data name="Sectors_ConfirmEraseTitle" xml:space="preserve"><value>清除磁區</value></data>
+  <data name="Sectors_ConfirmEraseMessageFormat" xml:space="preserve"><value>即將清除 LUN {0} 上從 LBA {1} 起的 {2} 個磁區。資料無法復原。</value></data>
+  <data name="Sectors_StatusReadingFormat" xml:space="preserve"><value>正在讀取 LUN {0} @ LBA {1}({2} 個磁區)…</value></data>
+  <data name="Sectors_StatusWritingFormat" xml:space="preserve"><value>正在寫入 LUN {0} @ LBA {1}…</value></data>
+  <data name="Sectors_StatusErasingFormat" xml:space="preserve"><value>正在清除 LUN {0} @ LBA {1}({2} 個磁區)…</value></data>
+  <data name="Sectors_StatusDoneFormat" xml:space="preserve"><value>完成 — 處理了 {0} 個磁區,耗時 {1:F2} 秒。</value></data>
+  <data name="Sectors_ErrorFormat" xml:space="preserve"><value>錯誤:{0}</value></data>
 </root>

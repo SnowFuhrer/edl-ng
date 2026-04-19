@@ -156,4 +156,54 @@
   <data name="Settings_LanguageCardTitle" xml:space="preserve"><value>言語</value></data>
   <data name="Settings_LanguageCardCaption" xml:space="preserve"><value>表示言語を選択します。選択はセッション間で保存されます。</value></data>
   <data name="Settings_LanguageLabel" xml:space="preserve"><value>言語</value></data>
+
+  <data name="Progress_Format" xml:space="preserve"><value>{0:F1} / {1:F1} MiB ({2:F0}%)</value></data>
+  <data name="Confirm_DefaultOk" xml:space="preserve"><value>続行</value></data>
+  <data name="Confirm_DefaultCancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="Confirm_TypeToConfirmFormat" xml:space="preserve"><value>確認のため「{0}」と入力してください。</value></data>
+
+  <data name="Parts_Ops_Title" xml:space="preserve"><value>パーティション操作</value></data>
+  <data name="Parts_Ops_Caption" xml:space="preserve"><value>名前付きパーティションの読み取り、書き込み、消去を行います。上の行をクリックすると値が入力されます。</value></data>
+  <data name="Parts_Ops_PartitionLabel" xml:space="preserve"><value>パーティション</value></data>
+  <data name="Parts_Ops_PartitionPlaceholder" xml:space="preserve"><value>例: boot、userdata</value></data>
+  <data name="Parts_Ops_LunLabel" xml:space="preserve"><value>LUN(任意)</value></data>
+  <data name="Parts_Ops_ReadButton" xml:space="preserve"><value>読み取り…</value></data>
+  <data name="Parts_Ops_WriteButton" xml:space="preserve"><value>書き込み…</value></data>
+  <data name="Parts_Ops_EraseButton" xml:space="preserve"><value>消去…</value></data>
+  <data name="Parts_Ops_SavePickerTitle" xml:space="preserve"><value>パーティションイメージの保存先…</value></data>
+  <data name="Parts_Ops_OpenPickerTitle" xml:space="preserve"><value>書き込むイメージを選択</value></data>
+  <data name="Parts_Ops_ConfirmWriteTitle" xml:space="preserve"><value>パーティションに書き込み</value></data>
+  <data name="Parts_Ops_ConfirmWriteMessageFormat" xml:space="preserve"><value>「{1}」({2} バイト)をパーティション「{0}」に書き込みます。既存の内容は上書きされます。</value></data>
+  <data name="Parts_Ops_ConfirmEraseTitle" xml:space="preserve"><value>パーティションの消去</value></data>
+  <data name="Parts_Ops_ConfirmEraseMessageFormat" xml:space="preserve"><value>パーティション「{0}」のすべてのセクタを消去します。データは復元できません。</value></data>
+  <data name="Parts_Ops_PartitionNotFoundFormat" xml:space="preserve"><value>スキャンしたいずれの LUN にもパーティション「{0}」は見つかりません。</value></data>
+  <data name="Parts_Ops_StatusReadingFormat" xml:space="preserve"><value>「{0}」を読み取り中…</value></data>
+  <data name="Parts_Ops_StatusWritingFormat" xml:space="preserve"><value>「{0}」に書き込み中…</value></data>
+  <data name="Parts_Ops_StatusErasingFormat" xml:space="preserve"><value>「{0}」を消去中…</value></data>
+  <data name="Parts_Ops_StatusDoneFormat" xml:space="preserve"><value>完了 —「{0}」所要時間 {1:F2} 秒。</value></data>
+  <data name="Parts_Ops_StatusFailedFormat" xml:space="preserve"><value>失敗 — {0}</value></data>
+
+  <data name="Sectors_Label" xml:space="preserve"><value>セクタ</value></data>
+  <data name="Sectors_Heading" xml:space="preserve"><value>セクタ範囲</value></data>
+  <data name="Sectors_Body" xml:space="preserve"><value>指定 LUN 上の連続する LBA を読み取り、書き込み、または消去します。書き込みと消去には確認文字列の入力が必要です。</value></data>
+  <data name="Sectors_LunLabel" xml:space="preserve"><value>LUN</value></data>
+  <data name="Sectors_StartLabel" xml:space="preserve"><value>開始 LBA</value></data>
+  <data name="Sectors_CountLabel" xml:space="preserve"><value>セクタ数</value></data>
+  <data name="Sectors_FileLabel" xml:space="preserve"><value>ファイル</value></data>
+  <data name="Sectors_BrowseButton" xml:space="preserve"><value>参照…</value></data>
+  <data name="Sectors_ReadButton" xml:space="preserve"><value>読み取り</value></data>
+  <data name="Sectors_ReadLunButton" xml:space="preserve"><value>LUN 全体を読み取り</value></data>
+  <data name="Sectors_WriteButton" xml:space="preserve"><value>書き込み</value></data>
+  <data name="Sectors_EraseButton" xml:space="preserve"><value>消去</value></data>
+  <data name="Sectors_SaveTitle" xml:space="preserve"><value>セクタデータの保存先…</value></data>
+  <data name="Sectors_OpenTitle" xml:space="preserve"><value>データファイルを選択</value></data>
+  <data name="Sectors_ConfirmWriteTitle" xml:space="preserve"><value>セクタへの書き込み</value></data>
+  <data name="Sectors_ConfirmWriteMessageFormat" xml:space="preserve"><value>「{0}」({1} バイト)を LUN {2}、開始 LBA {3} に書き込みます。既存のセクタは上書きされます。</value></data>
+  <data name="Sectors_ConfirmEraseTitle" xml:space="preserve"><value>セクタの消去</value></data>
+  <data name="Sectors_ConfirmEraseMessageFormat" xml:space="preserve"><value>LUN {0} の LBA {1} から {2} セクタを消去します。データは復元できません。</value></data>
+  <data name="Sectors_StatusReadingFormat" xml:space="preserve"><value>LUN {0} @ LBA {1}({2} セクタ)を読み取り中…</value></data>
+  <data name="Sectors_StatusWritingFormat" xml:space="preserve"><value>LUN {0} @ LBA {1} に書き込み中…</value></data>
+  <data name="Sectors_StatusErasingFormat" xml:space="preserve"><value>LUN {0} @ LBA {1}({2} セクタ)を消去中…</value></data>
+  <data name="Sectors_StatusDoneFormat" xml:space="preserve"><value>完了 — {0} セクタを {1:F2} 秒で処理。</value></data>
+  <data name="Sectors_ErrorFormat" xml:space="preserve"><value>エラー: {0}</value></data>
 </root>

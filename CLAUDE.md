@@ -41,7 +41,9 @@ Four C# projects (referenced in `edl-ng.slnx`) plus a Nix flake:
 
 **Adding a new CLI command:** create `QCEDL.CLI/Commands/FooCommand.cs` exposing `public static Command Create(GlobalOptionsBinder)`, register it in `Program.cs`. The command's `ExecuteAsync` takes `EdlOptions` (not the binder) — construct `new EdlManager(options)` to obtain a session.
 
-**Adding a GUI screen:** create a `ViewModel` under `QCEDL.GUI/ViewModels/`, a matching `UserControl` under `Views/`, add a nav entry in `ShellViewModel`, and wire a `DataTemplate` in `MainWindow.axaml`. Share sessions via the single `EdlService` in `QCEDL.GUI/Services/` — it guards calls with a semaphore so the UI can't issue overlapping operations.
+**Adding a GUI screen:** create a `ViewModel` under `QCEDL.GUI/ViewModels/`, a matching `UserControl` under `Views/`, add a nav entry in `ShellViewModel`, and wire a `DataTemplate` in `MainWindow.axaml`. Share sessions via the single `EdlService` in `QCEDL.GUI/Services/` — it guards calls with a semaphore so the UI can't issue overlapping operations. Long-running ops (read/write/erase) should marshal `progressCallback(long done, long total)` onto the UI thread via `Dispatcher.UIThread.Post` — see `PartitionsViewModel` / `SectorsViewModel` for the pattern.
+
+**Destructive-action confirmations:** `Views/ConfirmDialog` + `ConfirmDialogViewModel` is the single confirm-before-acting surface. Construct via `ConfirmDialog.ShowAsync(owner, title, message, danger: true, requiredConfirmation: "...")`. Passing `requiredConfirmation` gates the confirm button behind a typed-string match — used for `erase-part` (type the partition name), `write-sector` (type `WRITE`), `erase-sector` (type `ERASE`). Don't invent a second confirm control; add new variants by passing different labels to `ShowAsync`.
 
 **Firehose commands vs. XML layer:** `QualcommFirehoseCommands.cs` is the strongly-typed command surface; `Layers/APSS/Firehose/Xml/` contains the on-wire XML element types (serialized via `System.Xml`) and `JSON/StorageInfo/` parses the storage-info blob. `StorageType` enum lives under `Xml/Elements` — this is what `--memory` binds to.
 

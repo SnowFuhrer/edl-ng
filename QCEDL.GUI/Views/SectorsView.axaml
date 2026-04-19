@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:QCEDL.GUI.ViewModels"
+             xmlns:l="clr-namespace:QCEDL.GUI.Markup"
+             x:Class="QCEDL.GUI.Views.SectorsView"
+             x:DataType="vm:SectorsViewModel">
+    <StackPanel Spacing="20" MaxWidth="1040">
+        <StackPanel Spacing="6">
+            <TextBlock Classes="label" Text="{l:Localize Sectors_Label}" />
+            <TextBlock Classes="h1" Text="{l:Localize Sectors_Heading}" />
+            <TextBlock Classes="body" Text="{l:Localize Sectors_Body}" />
+        </StackPanel>
+
+        <Border Classes="card">
+            <StackPanel Spacing="14">
+                <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="14">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_LunLabel}" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Lun}" Width="140" HorizontalAlignment="Left" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_StartLabel}" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding StartLba}" Width="220" HorizontalAlignment="Left" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_CountLabel}" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SectorCount}" Width="220" HorizontalAlignment="Left" />
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Classes="body" Text="{l:Localize Sectors_FileLabel}" VerticalAlignment="Center" />
+                    <Grid Grid.Row="3" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <TextBox Grid.Column="0" Text="{Binding FilePath}" />
+                        <Button Grid.Column="1" Content="{l:Localize Sectors_BrowseButton}" Click="OnBrowseFile" />
+                    </Grid>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Classes="primary" Content="{l:Localize Sectors_ReadButton}" Click="OnRead" IsEnabled="{Binding CanInteract}" />
+                    <Button Content="{l:Localize Sectors_ReadLunButton}" Click="OnReadLun" IsEnabled="{Binding CanInteract}" />
+                    <Button Content="{l:Localize Sectors_WriteButton}" Click="OnWrite" IsEnabled="{Binding CanInteract}" />
+                    <Button Classes="danger" Content="{l:Localize Sectors_EraseButton}" Click="OnErase" IsEnabled="{Binding CanInteract}" />
+                </StackPanel>
+
+                <StackPanel Spacing="6" IsVisible="{Binding IsBusy}">
+                    <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Minimum="0" Maximum="100" />
+                    <TextBlock Classes="mono" FontSize="13" Foreground="{DynamicResource BrushTextTertiary}" Text="{Binding ProgressText}" />
+                </StackPanel>
+                <TextBlock Classes="caption" Text="{Binding Status}" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

@@ -53,6 +53,9 @@
                     <DataTemplate DataType="vm:PartitionsViewModel">
                         <v:PartitionsView />
                     </DataTemplate>
+                    <DataTemplate DataType="vm:SectorsViewModel">
+                        <v:SectorsView />
+                    </DataTemplate>
                     <DataTemplate DataType="vm:LogsViewModel">
                         <v:LogsView />
                     </DataTemplate>

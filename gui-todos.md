@@ -99,12 +99,12 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 - [Done] Connection view: options form, connect action, target/loader pickers, mode+storage readout.
 - [Done] Overview view: live connection summary card.
 - [Done] Partitions view: `printgpt` scan + table rendering.
-- [Todo] `read-part` with file save picker + progress.
+- [Done] `read-part` with file save picker + progress.
 
 **Phase 2 — Read / Write / Erase**
-- [Todo] `read-part`, `read-sector`, `read-lun` end-to-end with cancellable progress.
-- [Todo] `write-part`, `write-sector` with file pickers + confirmation.
-- [Todo] `erase-part`, `erase-sector` with double-confirmation for destructive ranges.
+- [Done] `read-part`, `read-sector`, `read-lun` end-to-end with progress. (Cancellation is Todo — underlying Firehose layer has no `CancellationToken` surface.)
+- [Done] `write-part`, `write-sector` with file pickers + confirmation.
+- [Done] `erase-part`, `erase-sector` with typed-string confirmation for destructive ranges.
 
 **Phase 3 — RawProgram & Advanced**
 - [Todo] `rawprogram` execute (multi-file selection, progress aggregation).
@@ -134,19 +134,19 @@ destructive-action confirmation dialog with target summary (LUN/partition/LBA ra
 | Connection view | 1 | Done | Loader/VID/PID/memory/slot/host-dev/radxa options; Connect + Probe actions. |
 | Overview | 1 | Done | Connection summary + last-action row. |
 | `printgpt` | 1 | Done | LUN scanner + partition table. |
-| `read-part` | 2 | Todo | Needs save-file picker + progress binding. |
-| `write-part` | 2 | Todo | Confirmation dialog w/ target summary. |
-| `erase-part` | 2 | Todo | Double-confirm for destructive. |
-| `read-sector` / `read-lun` | 2 | Todo | |
-| `write-sector` | 2 | Todo | |
-| `erase-sector` | 2 | Todo | |
+| `read-part` | 2 | Done | Save-file picker, partition auto-fill from table row, progress bar. |
+| `write-part` | 2 | Done | Open-file picker + confirmation dialog with target summary. |
+| `erase-part` | 2 | Done | Typed-partition-name confirmation for destructive path. |
+| `read-sector` / `read-lun` | 2 | Done | Sectors view: LUN + start/count, save picker, progress. `read-lun` uses `StorageGeometry.TotalSectors`. |
+| `write-sector` | 2 | Done | Confirmation requires typed `WRITE`. |
+| `erase-sector` | 2 | Done | Confirmation requires typed `ERASE`. |
 | `rawprogram` | 3 | Todo | |
 | `dump-rawprogram` | 3 | Todo | |
 | `provision` | 3 | Todo | |
 | `upload-loader` | 3 | Todo | (Reused via `EdlManager.UploadLoaderViaSaharaAsync`.) |
 | `reset` | 3 | Todo | |
-| Destructive-action confirmation dialog | 2 | Todo | Shared `ConfirmDialog` control. |
-| Cancellable progress | 2 | Todo | Depends on underlying op support. |
+| Destructive-action confirmation dialog | 2 | Done | `Views/ConfirmDialog` + `ConfirmDialogViewModel`. Supports plain confirm and typed-string double-confirm. |
+| Cancellable progress | 2 | Todo | Underlying Firehose/Sahara paths don't accept a `CancellationToken`; revisit once the protocol layer exposes one. |
 | Settings persistence | 4 | Todo | |
 
 ---

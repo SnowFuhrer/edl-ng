@@ -17,6 +17,7 @@ public sealed class ShellViewModel : ViewModelBase
         Connection = new ConnectionViewModel(edlService);
         Overview = new OverviewViewModel(edlService, Connection);
         Partitions = new PartitionsViewModel(edlService);
+        Sectors = new SectorsViewModel(edlService);
         Settings = new SettingsViewModel();
 
         NavigationItems =
@@ -24,7 +25,7 @@ public sealed class ShellViewModel : ViewModelBase
             new NavigationItem("Nav_Overview", Overview),
             new NavigationItem("Nav_Connection", Connection),
             new NavigationItem("Nav_Partitions", Partitions),
-            new NavigationItem("Nav_Sectors", new PlaceholderViewModel("Placeholder_Sectors_Title", "Placeholder_Sectors_Description")),
+            new NavigationItem("Nav_Sectors", Sectors),
             new NavigationItem("Nav_RawProgram", new PlaceholderViewModel("Placeholder_RawProgram_Title", "Placeholder_RawProgram_Description")),
             new NavigationItem("Nav_Advanced", new PlaceholderViewModel("Placeholder_Advanced_Title", "Placeholder_Advanced_Description")),
             new NavigationItem("Nav_Logs", Logs),
@@ -44,6 +45,7 @@ public sealed class ShellViewModel : ViewModelBase
     public OverviewViewModel Overview { get; }
     public ConnectionViewModel Connection { get; }
     public PartitionsViewModel Partitions { get; }
+    public SectorsViewModel Sectors { get; }
     public LogsViewModel Logs { get; }
     public SettingsViewModel Settings { get; }
 }
