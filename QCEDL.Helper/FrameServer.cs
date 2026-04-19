@@ -185,8 +185,8 @@ internal sealed class FrameServer(Stream stream) : IDisposable
         var name = Path.GetFileName(full);
         var inDev = string.Equals(Path.GetDirectoryName(full), "/dev", StringComparison.Ordinal);
         var matchesPrefix =
-            name.StartsWith("cu.usb", StringComparison.Ordinal) ||
-            name.StartsWith("tty.usb", StringComparison.Ordinal);
+            name.StartsWith("cu.usb", StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("tty.usb", StringComparison.OrdinalIgnoreCase);
         if (!inDev || !matchesPrefix)
         {
             throw new ArgumentException($"Device path '{devicePath}' is not an allowed USB-serial node.", nameof(devicePath));
