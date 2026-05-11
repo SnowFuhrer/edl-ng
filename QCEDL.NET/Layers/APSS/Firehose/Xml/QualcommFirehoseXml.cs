@@ -61,6 +61,7 @@ public static class QualcommFirehoseXml
                 {
                     configureElement.Add(new XAttribute("SkipStorageInit", cfg.SkipStorageInit));
                 }
+                configureElement.Add(new XAttribute("Oem", "ZTE"));
 
                 dataElement.Add(configureElement);
             }
@@ -244,12 +245,33 @@ public static class QualcommFirehoseXml
             {
                 dataElement.Add(new XElement("nop"));
             }
-            // Note: 'Log' and 'Response' elements are typically part of incoming messages, not outgoing commands.
-            // If there's a scenario to send them, add them here.
+            // Note: 'Log' and 'Response' elements are typically part of incoming messages...
 
             _ = sb.Append(dataElement.ToString(SaveOptions.DisableFormatting));
         }
-        return sb.ToString();
+
+        var finalXml = sb.ToString();
+
+        // --- ULTIMATE ZTE DRM BYPASS ---
+        // 1. Force exact XML declaration
+        finalXml = finalXml.Replace("<?xml version=\"1.0\" ?>", "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        // 2. Force lowercase storage names across ALL commands
+        finalXml = finalXml.Replace("MemoryName=\"Ufs\"", "MemoryName=\"ufs\"");
+        finalXml = finalXml.Replace("MemoryName=\"eMMC\"", "MemoryName=\"emmc\"");
+        finalXml = finalXml.Replace("storage_type=\"UFS\"", "storage_type=\"ufs\"");
+        finalXml = finalXml.Replace("storage_type=\"eMMC\"", "storage_type=\"emmc\"");
+        finalXml = finalXml.Replace("storage_type=\"NVME\"", "storage_type=\"nvme\"");
+        // 3. Inject the secret handshake if it's missing
+        if (finalXml.Contains("<configure") && !finalXml.Contains("Oem=\"ZTE\""))
+        {
+            finalXml = finalXml.Replace("<configure ", "<configure Oem=\"ZTE\" MaxDigestTableSizeInBytes=\"8192\" ");
+        }
+
+        // Print it to the Trace log so we know exactly what was sent!
+        LibraryLogger.Trace($"[TX] {finalXml}");
+
+
+        return finalXml;
     }
 
     public static Data[] GetDataPayloads(string commandPacket) // Changed method name for clarity

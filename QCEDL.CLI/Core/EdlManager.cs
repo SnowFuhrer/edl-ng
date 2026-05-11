@@ -209,30 +209,53 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
         {
             probeSerial = new(_devicePath!);
             probeSerial.SetTimeOut(500); // Short timeout for initial read attempt
-            // --- Probe 1: Passive Read ---
+
+            // --- Probe 1: Passive Read & Pipe Flush ---
             Logging.Log("Attempting passive read...", LogLevel.Debug);
             try
             {
-                // Try reading a small amount.
-                Logging.Log("Reading initial data from device...", LogLevel.Debug);
-                initialReadBuffer = probeSerial.GetResponse(null, 48); // Read up to 48 bytes raw
+                Logging.Log("Reading initial data from device and flushing pipe...", LogLevel.Debug);
+                var fullBuffer = new List<byte>();
+                var loopCount = 0;
+
+                while (loopCount < 50)
+                {
+                    try
+                    {
+                        // Use 8192 to prevent LibUsb Overflow. The device spams XML logs on boot.
+                        var chunk = probeSerial.GetResponse(null, 8192);
+                        if (chunk != null && chunk.Length > 0)
+                        {
+                            fullBuffer.AddRange(chunk);
+
+                            // Print it cleanly in trace mode so we can see the vacuum working
+                            var textChunk = Encoding.UTF8.GetString(chunk).Replace("\n", " ").Replace("\r", " ").Trim();
+                            Logging.Log($"[FLUSH] Discarding {chunk.Length} bytes: {textChunk}", LogLevel.Trace);
+                        }
+                        else
+                        {
+                            break; // Empty read, pipe is completely clear
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        break; // Pipe is quiet, break the loop naturally
+                    }
+                    loopCount++;
+                }
+
+                initialReadBuffer = fullBuffer.Count > 0 ? [.. fullBuffer] : null;
                 Logging.Log("Initial read completed.", LogLevel.Debug);
-            }
-            catch (TimeoutException)
-            {
-                Logging.Log("Passive read timed out (no initial data from device).", LogLevel.Debug);
-                initialReadBuffer = null;
             }
             catch (BadMessageException)
             {
                 Logging.Log("Passive read received potentially incomplete/bad message.", LogLevel.Debug);
-                initialReadBuffer = null;
             }
             catch (Exception ex)
             {
                 Logging.Log($"Error during passive read: {ex.Message}", LogLevel.Debug);
-                initialReadBuffer = null;
             }
+
 
             if (initialReadBuffer != null && initialReadBuffer.Length > 0)
             {
@@ -1314,15 +1337,8 @@ internal sealed class EdlManager(GlobalOptionsBinder globalOptions) : IDisposabl
         private async Task<Root?> GetDeviceInfoAsync(uint lun)
         {
             await EnsureReadyAsync();
-            try
-            {
-                return await Task.Run(() => owner.Firehose.GetStorageInfo(CurrentStorageType, lun, owner.GlobalOptions.Slot));
-            }
-            catch (Exception ex)
-            {
-                Logging.Log($"Could not get storage info for LUN {lun} (StorageType: {CurrentStorageType}). Using defaults. Error: {ex.Message}", LogLevel.Warning);
-                return null;
-            }
+            Logging.Log($"Skipping GetStorageInfo for LUN {lun} to prevent ZTE USB desync.", LogLevel.Debug);
+            return null; // Forces edl-ng to use default 4096 sector size without breaking the USB pipe
         }
 
         private async Task<GptPartition?> FindPartitionOnLunAsync(string partitionName, uint lun)
