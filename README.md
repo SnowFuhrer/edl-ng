@@ -1,5 +1,6 @@
 # edl-ng
-WARNING, RAWPROGRAMXML RESTORES ARE CURRENTLY FLASHING INCORRECTLY CAUSING BRICK. 
+WARNING, RAWPROGRAMXML RESTORES ARE CURRENTLY FLASHING INCORRECTLY CAUSING BRICK.
+
 **A modern, user-friendly tool for interacting with Qualcomm devices in Emergency Download (EDL) mode.**
 
 Built with .NET, `edl-ng` provides tools for both Sahara and Firehose protocols, enabling device flashing, partition management, and low-level device interaction.
